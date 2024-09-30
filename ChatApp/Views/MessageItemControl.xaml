@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="ChatApp.Views.MessageItemControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <!-- Converter để chuyển đổi bool thành Visibility -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <!-- Style cho tin nhắn -->
+        <Style x:Key="MessageBubbleStyle" TargetType="Border">
+            <Setter Property="Background" Value="#E0E0E0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="MaxWidth" Value="400"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+
+            <!-- DataTrigger để thay đổi căn chỉnh và màu nền nếu là tin nhắn của người dùng hiện tại -->
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSentByCurrentUser}" Value="True">
+                    <Setter Property="Background" Value="#DCF8C6"/>
+                    <!-- Màu xanh lá nhạt cho tin nhắn người dùng -->
+                    <Setter Property="HorizontalAlignment" Value="Right"/>
+                    <!-- Căn phải -->
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- Sử dụng Border để bao quanh nội dung tin nhắn -->
+    <Border Style="{StaticResource MessageBubbleStyle}">
+        <StackPanel>
+            <!-- Hiển thị tên người gửi, ẩn nếu là tin nhắn của người dùng hiện tại -->
+            <TextBlock Text="{Binding SenderName}" 
+                       FontWeight="Bold" 
+                       Visibility="{Binding IsSentByCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=False}" />
+            <!-- Nội dung tin nhắn -->
+            <TextBlock Text="{Binding Content}" TextWrapping="Wrap" />
+            <!-- Thời gian gửi -->
+            <TextBlock Text="{Binding SentAtFormatted}" 
+                       FontSize="10" 
+                       Foreground="Gray" 
+                       HorizontalAlignment="Right" />
+        </StackPanel>
+    </Border>
+</UserControl>
