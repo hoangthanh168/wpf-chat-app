@@ -74,34 +74,3 @@ Update-Database
 2. **Tạo hoặc Tham gia Nhóm Chat:** Tạo nhóm mới hoặc tham gia các nhóm hiện có.
 3. **Gửi Tin nhắn:** Gửi và nhận tin nhắn trực tiếp hoặc trong nhóm.
 4. **Xem Tin nhắn Offline:** Xem các tin nhắn đã gửi khi bạn không trực tuyến.
-
-## Cách đóng góp
-1. **Fork Repository**
-2. **Tạo Branch Mới**
-    ```bash
-    git checkout -b feature/your-feature
-    ```
-3. **Commit Thay đổi**
-    ```bash
-    git commit -m "Add some feature"
-    ```
-4. **Push Branch**
-    ```bash
-    git push origin feature/your-feature
-    ```
-5. **Mở Pull Request**
-
-## License
-[MIT](LICENSE)
-
-## Liên hệ
-- **Email:** your.email@example.com
-- **LinkedIn:** [Your LinkedIn](https://www.linkedin.com/in/yourprofile/)
-- **GitHub:** [yourusername](https://github.com/yourusername)
-
----
-
-**Lưu ý:**
-- Thay thế các thông tin như `yourusername`, `YOUR_SERVER`, `your.email@example.com`, và các liên kết liên hệ bằng thông tin thực tế của bạn.
-- Cập nhật phần License nếu bạn sử dụng loại giấy phép khác ngoài MIT.
-- Thêm các phần khác nếu dự án của bạn có thêm tính năng hoặc yêu cầu đặc biệt.
