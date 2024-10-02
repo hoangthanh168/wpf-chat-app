@@ -26,7 +26,6 @@ ChatApp/
 ```
 
 ## Yêu cầu hệ thống
-- **Hệ điều hành:** Windows 10 trở lên
 - **.NET Framework:** 4.8
 - **Visual Studio:** 2019 hoặc mới hơn
 - **SQL Server:** 2017 hoặc mới hơn
@@ -64,13 +63,3 @@ Enable-Migrations
 Add-Migration InitialCreate
 Update-Database
 ```
-
-### 6. Chạy Ứng dụng
-- **ChatServer:** Chạy dự án `ChatServer` để khởi động dịch vụ xử lý dữ liệu.
-- **ChatApp:** Chạy dự án `ChatApp` để mở giao diện người dùng.
-
-## Sử dụng
-1. **Đăng ký hoặc Đăng nhập:** Tạo tài khoản hoặc đăng nhập vào hệ thống.
-2. **Tạo hoặc Tham gia Nhóm Chat:** Tạo nhóm mới hoặc tham gia các nhóm hiện có.
-3. **Gửi Tin nhắn:** Gửi và nhận tin nhắn trực tiếp hoặc trong nhóm.
-4. **Xem Tin nhắn Offline:** Xem các tin nhắn đã gửi khi bạn không trực tuyến.
