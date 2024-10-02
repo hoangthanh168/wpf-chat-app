@@ -1,7 +1,7 @@
 # ChatApp
 
 ## Mô tả
-ChatApp là một ứng dụng chat đa người dùng, hỗ trợ giao tiếp trực tiếp và nhóm, với tính năng lưu trữ tin nhắn offline. Ứng dụng được xây dựng dựa trên kiến trúc phân tầng, đảm bảo tính mở rộng và dễ bảo trì. Tất cả các thành phần giao tiếp với nhau cục bộ trên máy tính của người dùng mà không cần một backend riêng biệt.
+ChatApp là một phần mềm chat được phát triển theo yêu cầu môn học Lập Trình Mạng tại Đại Học DLU, phần mềm hỗ trợ giao tiếp trực tiếp và nhóm, với tính năng lưu trữ tin nhắn offline. Tất cả các thành phần giao tiếp với nhau cục bộ trên máy tính của người dùng mà không cần một backend riêng biệt.
 
 ## Tính năng
 - **Đăng ký & Đăng nhập:** Người dùng có thể tạo tài khoản và đăng nhập vào hệ thống.
@@ -11,11 +11,11 @@ ChatApp là một ứng dụng chat đa người dùng, hỗ trợ giao tiếp t
 - **Giao tiếp cục bộ:** Tất cả các chức năng giao tiếp và xử lý dữ liệu diễn ra cục bộ trên máy tính người dùng.
 
 ## Công nghệ sử dụng
-- **Backend:** .NET Framework, Entity Framework
-- **Frontend:** WPF (Windows Presentation Foundation)
-- **Dependency Injection:** Unity
-- **Version Control:** Git
-- **Quản lý cơ sở dữ liệu:** SQL Server
+- .NET Framework, Entity Framework
+- WPF (Windows Presentation Foundation)
+- Unity
+- Git
+- QL Server
 
 ## Cấu trúc dự án
 ```
