@@ -184,6 +184,7 @@
     </ApplicationDefinition>
     <Compile Include="ViewModels\ChatItemViewModel.cs" />
     <Compile Include="ViewModels\ChatViewModel.cs" />
+    <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\MenuItem.cs" />
     <Compile Include="ViewModels\MessageItemViewModel.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />

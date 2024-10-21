@@ -35,3 +35,4 @@ namespace ChatApp.ViewModels
         // Bạn có thể thêm command hoặc logic khác nếu cần thiết
     }
 }
+ 

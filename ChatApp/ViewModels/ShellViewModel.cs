@@ -10,27 +10,28 @@ namespace ChatApp.ViewModels
 {
     public class ShellViewModel : BindableBase
     {
-        public ObservableCollection<MenuItem> Menu { get; } = new ObservableCollection<MenuItem>();
-        public ObservableCollection<MenuItem> OptionsMenu { get; } = new ObservableCollection<MenuItem>();
-
+        public ObservableCollection<MenuItem> Menu { get; }
+        public ObservableCollection<MenuItem> OptionsMenu { get; }
 
         public ShellViewModel()
         {
-            // Build the menus
-            this.Menu.Add(new MenuItem()
+            Menu = new ObservableCollection<MenuItem>
             {
-                Icon = new PackIconCoolicons() { Kind = PackIconCooliconsKind.Chat },
-                Label = "Nhắn tin",
-                NavigationType = typeof(ChatPage),
-                NavigationDestination = new Uri("Views/ChatPage.xaml", UriKind.RelativeOrAbsolute)
-            });
-            this.OptionsMenu.Add(new MenuItem()
+                new MenuItem { Label = "Home", NavigationDestination = new System.Uri("Views/HomePage.xaml", System.UriKind.Relative) },
+                new MenuItem { Label = "Settings", NavigationDestination = new System.Uri("Views/SettingsPage.xaml", System.UriKind.Relative) }
+            };
+
+            OptionsMenu = new ObservableCollection<MenuItem>
             {
-                Icon = new PackIconVaadinIcons() { Kind = PackIconVaadinIconsKind.CogOutline },
-                Label = "Cài đặt",
-                NavigationType = typeof(SettingsPage),
-                NavigationDestination = new Uri("Views/SettingsPage.xaml", UriKind.RelativeOrAbsolute)
-            });
+                new MenuItem { Label = "About", NavigationDestination = new System.Uri("Views/AboutPage.xaml", System.UriKind.Relative) }
+            };
         }
+    }
+
+    public class MenuItem : BindableBase
+    {
+        public string Label { get; set; }
+        public object Icon { get; set; }
+        public System.Uri NavigationDestination { get; set; }
     }
 }

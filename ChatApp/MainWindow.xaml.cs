@@ -1,4 +1,6 @@
-﻿using MahApps.Metro.Controls;
+﻿using ChatApp.ViewModels;
+using ChatApp.Views;
+using MahApps.Metro.Controls;
 using System;
 using System.Linq;
 using System.Windows;
@@ -17,14 +19,32 @@ namespace ChatApp
 
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
-            this.navigationServiceEx = new Navigation.NavigationServiceEx();
-            this.navigationServiceEx.Navigated += this.NavigationServiceEx_OnNavigated;
-            this.HamburgerMenuControl.Content = this.navigationServiceEx.Frame;
+            var loginPage = new LoginPage();
+            var loginViewModel = new LoginViewModel();
+            loginPage.DataContext = loginViewModel;
 
-            // Navigate to the home page.
-            this.Loaded += (sender, args) => this.navigationServiceEx.Navigate(new Uri("Views/ChatPage.xaml", UriKind.RelativeOrAbsolute));
+            // Đặt trang LoginPage là trang đầu tiên
+            MainFrame.Content = loginPage;
+
+            loginViewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(loginViewModel.IsLoginSuccessful) && loginViewModel.IsLoginSuccessful)
+                {
+                    if (loginViewModel.IsAdmin)
+                    {
+                        MessageBox.Show("Chào mừng Admin!");
+                    }
+                    else
+                    {
+                        // Điều hướng đến trang ChatPage
+                        var chatViewModel = new ChatViewModel { CurrentUser = new User { Name = loginViewModel.Name } };
+                        var chatPage = new ChatPage { DataContext = chatViewModel };
+                        MainFrame.Navigate(chatPage);
+                    }
+                }
+            };
         }
 
         private void HamburgerMenuControl_OnItemInvoked(object sender, HamburgerMenuItemInvokedEventArgs e)
@@ -62,9 +82,44 @@ namespace ChatApp
             this.GoBackButton.SetCurrentValue(VisibilityProperty, this.navigationServiceEx.CanGoBack ? Visibility.Visible : Visibility.Collapsed);
         }
 
+        
+        private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.navigationServiceEx.Navigate(new Uri("Views/SettingsPage.xaml", UriKind.RelativeOrAbsolute));
+        }
+       
+        private void OnLoginSuccess(string userName, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                // Mở trang hoặc cung cấp quyền truy cập cho admin
+                MessageBox.Show("Chào mừng Admin!");
+                // Có thể điều hướng đến trang quản trị
+            }
+            else
+            {
+                // Khởi tạo trang chat cho người dùng thường
+                var chatViewModel = new ChatViewModel
+                {
+                    CurrentUser = new User { Name = userName }
+                };
+
+                var chatPage = new ChatPage();
+                chatPage.DataContext = chatViewModel;
+
+                // Điều hướng tới trang Chat
+                this.navigationServiceEx.Navigate(new Uri("Views/ChatPage.xaml", UriKind.RelativeOrAbsolute));
+            }
+        }
         private void GoBack_OnClick(object sender, RoutedEventArgs e)
         {
-            this.navigationServiceEx.GoBack();
+            // Kiểm tra nếu có thể quay lại trang trước
+            if (this.navigationServiceEx.CanGoBack)
+            {
+                this.navigationServiceEx.GoBack();
+            }
         }
+
+
     }
 }

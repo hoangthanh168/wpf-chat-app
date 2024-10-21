@@ -52,8 +52,8 @@ namespace ChatApp.ViewModels
             // Thêm dữ liệu mẫu vào danh sách người dùng nhóm
             UserGroupList.Add(new ChatItemViewModel
             {
-                DisplayName = "Khu nội trú-ĐH Đà Lạt",
-                LastMessage = "Tường Uy: lý do..."
+                DisplayName = "Nhóm Bạn Đá Banh",
+                LastMessage = "Hello."
             });
             UserGroupList.Add(new ChatItemViewModel
             {

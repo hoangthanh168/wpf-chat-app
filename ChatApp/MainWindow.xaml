@@ -12,6 +12,8 @@
     Width="800"
     Height="450"
     mc:Ignorable="d">
+    
+    
     <controls:MetroWindow.DataContext>
         <viewModels:ShellViewModel />
     </controls:MetroWindow.DataContext>
@@ -19,14 +21,26 @@
     <controls:MetroWindow.LeftWindowCommands>
         <controls:WindowCommands ShowSeparators="False">
             <Button
-                x:Name="GoBackButton"
-                Width="{Binding ElementName=HamburgerMenuControl, Path=CompactPaneLength}"
-                AutomationProperties.Name="Go back"
-                Click="GoBack_OnClick">
+            x:Name="GoBackButton"
+            Width="{Binding ElementName=HamburgerMenuControl, Path=CompactPaneLength}"
+            AutomationProperties.Name="Go back"
+            Click="GoBack_OnClick">
                 <controls:FontIcon
-                    AutomationProperties.Name="Go back icon"
-                    FontSize="14"
-                    Glyph="&#xE72B;" />
+                AutomationProperties.Name="Go back icon"
+                FontSize="14"
+                Glyph="&#xE72B;" />
+            </Button>
+
+            <!-- Nút Settings -->
+            <Button
+            x:Name="SettingsButton"
+            Width="{Binding ElementName=HamburgerMenuControl, Path=CompactPaneLength}"
+            AutomationProperties.Name="Settings"
+            Click="SettingsButton_OnClick">
+                <controls:FontIcon
+                AutomationProperties.Name="Settings icon"
+                FontSize="14"
+                Glyph="&#xE713;" />
             </Button>
         </controls:WindowCommands>
     </controls:MetroWindow.LeftWindowCommands>
