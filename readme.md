@@ -20,9 +20,44 @@ ChatApp là một phần mềm chat được phát triển theo yêu cầu môn 
 ## Cấu trúc dự án
 ```
 ChatApp/
-├── ChatApp/                # Project Presentation Layer (WPF)
+├── ChatApp/              # Project Presentation Layer (WPF)
+├───bin
+│   ├───Debug
+│   │   └───de
+│   └───Release
+├───Converters
+├───Mvvm
+├───Navigation
+├───obj
+│   └───Debug
+│       ├───TempPE
+│       └───Views
+├───Properties
+├───ViewModels
+└───Views
 ├── ChatApp.Core/           # Core Layer (Models, Repositories, Services)
+├───bin
+│   ├───Debug
+│   └───Release
+├───Models
+├───obj
+│   └───Debug
+│       └───TempPE
+├───Properties
+├───Repositories
+├───rp
+└───Services
 └── ChatServer/             # Data Access Layer và Server Logic (cục bộ)
+├───bin
+│   ├───Debug
+│   │   └───de
+│   └───Release
+├───Migrations
+├───obj
+│   └───Debug
+│       └───TempPE
+├───Properties
+└───Repositories
 ```
 
 ## Yêu cầu hệ thống
