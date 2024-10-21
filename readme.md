@@ -21,43 +21,120 @@ ChatApp là một phần mềm chat được phát triển theo yêu cầu môn 
 ```
 ChatApp/
 ├── ChatApp/              # Project Presentation Layer (WPF)
-├───bin
-│   ├───Debug
-│   │   └───de
-│   └───Release
-├───Converters
-├───Mvvm
-├───Navigation
-├───obj
-│   └───Debug
-│       ├───TempPE
-│       └───Views
-├───Properties
-├───ViewModels
-└───Views
+    ├── App.config
+    ├── App.xaml
+    ├── App.xaml.cs
+    ├── ChatApp.csproj
+    ├── MainWindow.xaml
+    ├── MainWindow.xaml.cs
+    ├── packages.config
+    ├── Converters
+    ├── Mvvm
+    │   ├── BindableBase.cs
+    │   └── DelegateCommand.cs
+    ├── Navigation
+    │   ├── FrameAnimator.cs
+    │   └── NavigationServiceEx.cs
+    ├── Properties
+    │   ├── AssemblyInfo.cs
+    │   ├── Resources.Designer.cs
+    │   ├── Resources.resx
+    │   ├── Settings.Designer.cs
+    │   └── Settings.settings
+    ├── ViewModels
+    │   ├── ChatItemViewModel.cs
+    │   ├── ChatViewModel.cs
+    │   ├── MenuItem.cs
+    │   ├── MessageItemViewModel.cs
+    │   ├── SettingsViewModel.cs
+    │   └── ShellViewModel.cs
+    └── Views
+        ├── ChatItemControl.xaml
+        ├── ChatItemControl.xaml.cs
+        ├── ChatPage.xaml
+        ├── ChatPage.xaml.cs
+        ├── LoginPage.xaml
+        ├── LoginPage.xaml.cs
+        ├── MessageItemControl.xaml
+        ├── MessageItemControl.xaml.cs
+        ├── SettingsPage.xaml
+        └── SettingsPage.xaml.cs
 ├── ChatApp.Core/           # Core Layer (Models, Repositories, Services)
-├───bin
-│   ├───Debug
-│   └───Release
-├───Models
-├───obj
-│   └───Debug
-│       └───TempPE
-├───Properties
-├───Repositories
-├───rp
-└───Services
+    ├── ChatApp.Core.csproj
+    ├── Models
+    │   └── Models.cs
+    ├── Properties
+    │   └── AssemblyInfo.cs
+    ├── Repositories
+    │   ├── IGenericRepository.cs
+    │   ├── IGroupChatRepository.cs
+    │   ├── IGroupMemberRepository.cs
+    │   ├── IMessageRepository.cs
+    │   ├── IOfflineMessageRepository.cs
+    │   ├── IUnitOfWork.cs
+    │   └── IUserRepository.cs
+    ├── Services
+    │   ├── GroupChatService.cs
+    │   ├── GroupMemberService.cs
+    │   ├── IGroupChatService.cs
+    │   ├── IGroupMemberService.cs
+    │   ├── IMessageService.cs
+    │   ├── IOfflineMessageService.cs
+    │   ├── IUserService.cs
+    │   ├── MessageService.cs
+    │   ├── OfflineMessageService.cs
+    │   └── UserService.cs
+    └── rp
+        ├── IGenericRepository.cs
+        ├── IGroupChatRepository.cs
+        ├── IGroupMemberRepository.cs
+        ├── IMessageRepository.cs
+        ├── IOfflineMessageRepository.cs
+        ├── IUnitOfWork.cs
+        └── IUserRepository.cs
+        
 └── ChatServer/             # Data Access Layer và Server Logic (cục bộ)
-├───bin
-│   ├───Debug
-│   │   └───de
-│   └───Release
-├───Migrations
-├───obj
-│   └───Debug
-│       └───TempPE
-├───Properties
-└───Repositories
+    ├── App.config
+    ├── App.xaml
+    ├── App.xaml.cs
+    ├── AppDbContext.cs
+    ├── ChatServer.csproj
+    ├── ChatServer.csproj.user
+    ├── MainWindow.xaml
+    ├── MainWindow.xaml.cs
+    ├── packages.config
+    ├── UnityConfig.cs
+    ├── Migrations
+    │   ├── 202409291523308_InitialCreate.cs
+    │   ├── 202409291523308_InitialCreate.Designer.cs
+    │   ├── 202409291523308_InitialCreate.resx
+    │   └── Configuration.cs
+    ├── Properties
+    │   ├── AssemblyInfo.cs
+    │   ├── Resources.Designer.cs
+    │   ├── Resources.resx
+    │   ├── Settings.Designer.cs
+    │   └── Settings.settings
+    ├── Repositories
+    │   ├── GenericRepository.cs
+    │   ├── GroupChatRepository.cs
+    │   ├── GroupMemberRepository.cs
+    │   ├── MessageRepository.cs
+    │   ├── OfflineMessageRepository.cs
+    │   ├── UnitOfWork.cs
+    │   └── UserRepository.cs
+    └── Views
+        ├── ChatItemControl.xaml
+        ├── ChatItemControl.xaml.cs
+        ├── ChatPage.xaml
+        ├── ChatPage.xaml.cs
+        ├── LoginPage.xaml
+        ├── LoginPage.xaml.cs
+        ├── MessageItemControl.xaml
+        ├── MessageItemControl.xaml.cs
+        ├── SettingsPage.xaml
+        └── SettingsPage.xaml.cs
+
 ```
 
 ## Yêu cầu hệ thống
