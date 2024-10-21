@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using ChatApp.ViewModels;
 
 namespace ChatApp.Views
 {
@@ -7,6 +8,7 @@ namespace ChatApp.Views
         public SettingsPage()
         {
             InitializeComponent();
+            DataContext = new SettingsViewModel();
         }
     }
 }

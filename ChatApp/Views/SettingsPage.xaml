@@ -7,14 +7,17 @@
     <Grid>
         <StackPanel>
             <TextBlock
+                Margin="20"
+                HorizontalAlignment="Center"
                 FontSize="24"
                 FontWeight="Bold"
-                HorizontalAlignment="Center"
-                Margin="20"
                 Text="Settings" />
 
             <TextBlock Margin="10" FontSize="16">Notifications</TextBlock>
-            <CheckBox Content="Enable Notifications" Margin="10" IsChecked="{Binding EnableNotifications}" />
+            <CheckBox
+                Margin="10"
+                Content="Enable Notifications"
+                IsChecked="{Binding EnableNotifications}" />
 
             <TextBlock Margin="10" FontSize="16">Chat Theme</TextBlock>
             <ComboBox Margin="10" SelectedItem="{Binding SelectedTheme}">
@@ -29,7 +32,11 @@
                 <ComboBoxItem>Spanish</ComboBoxItem>
             </ComboBox>
 
-            <Button Content="Save" HorizontalAlignment="Right" Margin="20" Command="{Binding SaveCommand}" />
+            <Button
+                Margin="20"
+                HorizontalAlignment="Right"
+                Command="{Binding SaveCommand}"
+                Content="Save" />
         </StackPanel>
     </Grid>
 </Page>

@@ -1,80 +1,47 @@
-﻿using System;
-using System.Windows.Input;
-using ChatApp.Mvvm;
+﻿using ChatApp.Mvvm;
 
 namespace ChatApp.ViewModels
 {
     public class LoginViewModel : BindableBase
     {
-        private string _name;
-        private string _ipAddress;
-        private bool _isLoginSuccessful;
-        private bool _isAdmin;
+        private string _username;
+        private string _password;
 
-        public string Name
+        public string Username
         {
-            get => _name;
-            set => SetProperty(ref _name, value);
+            get => _username;
+            set => SetProperty(ref _username, value);
         }
 
-        public string IpAddress
+        public string Password
         {
-            get => _ipAddress;
-            set => SetProperty(ref _ipAddress, value);
+            get => _password;
+            set => SetProperty(ref _password, value);
         }
 
-        public bool IsLoginSuccessful
-        {
-            get => _isLoginSuccessful;
-            set => SetProperty(ref _isLoginSuccessful, value);
-        }
-
-        public bool IsAdmin
-        {
-            get => _isAdmin;
-            set => SetProperty(ref _isAdmin, value);
-        }
-
-        public ICommand LoginCommand { get; }
-
-        // Tài khoản admin mặc định và IP gốc
-        private readonly string _adminName = "admin";
-        private readonly string _adminIp = "127.0.0.1";
+        public DelegateCommand LoginCommand { get; }
 
         public LoginViewModel()
         {
-            LoginCommand = new DelegateCommand(OnLogin, CanLogin);
+            LoginCommand = new DelegateCommand(ExecuteLogin, CanExecuteLogin);
         }
 
-        private void OnLogin()
+        private bool CanExecuteLogin()
         {
-            // Xác thực tài khoản admin
-            if (Name == _adminName && IpAddress == _adminIp)
-            {
-                IsAdmin = true;
-                IsLoginSuccessful = true;
-            }
-            // Xác thực người dùng thường
-            else if (IsValidIpAddress(IpAddress) && !string.IsNullOrWhiteSpace(Name))
-            {
-                IsAdmin = false;
-                IsLoginSuccessful = true;
-            }
-            else
-            {
-                // Đăng nhập thất bại
-                IsLoginSuccessful = false;
-            }
+            return !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
         }
 
-        private bool IsValidIpAddress(string ipAddress)
+        private void ExecuteLogin()
         {
-            return System.Net.IPAddress.TryParse(ipAddress, out _);
-        }
+            // Perform login logic here
+            bool isLoginSuccessful = true; // Replace with actual login check
+            bool isAdmin = false; // Replace with actual admin check
 
-        private bool CanLogin()
-        {
-            return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(IpAddress);
+            if (isLoginSuccessful)
+            {
+                // Use our custom Messenger to send the login success message
+                Messenger.Send(new LoginSuccessMessage(Username, isAdmin));
+            }
         }
     }
 }

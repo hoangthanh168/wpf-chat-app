@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using ChatApp.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace ChatApp.Views
@@ -32,6 +33,7 @@ namespace ChatApp.Views
 
             // Nếu thông tin hợp lệ, tiến hành đăng nhập
             MessageBox.Show($"Đăng nhập thành công!\nTên: {name}\nIP: {ipAddress}");
+            this.DataContext = new LoginViewModel();
 
             // Tại đây bạn có thể tiếp tục điều hướng hoặc xử lý logic đăng nhập
         }

@@ -6,13 +6,12 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using ChatApp.Mvvm;
 using MenuItem = ChatApp.ViewModels.MenuItem;
+using System.Collections.Generic;
 
 namespace ChatApp
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : MetroWindow
     {
         private readonly Navigation.NavigationServiceEx navigationServiceEx;
@@ -21,30 +20,24 @@ namespace ChatApp
         {
             InitializeComponent();
 
-            var loginPage = new LoginPage();
-            var loginViewModel = new LoginViewModel();
-            loginPage.DataContext = loginViewModel;
+            // Initialize the navigation service
+            this.navigationServiceEx = new Navigation.NavigationServiceEx();
+            this.navigationServiceEx.Navigated += NavigationServiceEx_OnNavigated;
 
-            // Đặt trang LoginPage là trang đầu tiên
-            MainFrame.Content = loginPage;
+            // Set up the Frame for navigation
+            var frame = new Frame();
+            this.navigationServiceEx.Frame = frame;
+            this.Content = frame;
 
-            loginViewModel.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(loginViewModel.IsLoginSuccessful) && loginViewModel.IsLoginSuccessful)
-                {
-                    if (loginViewModel.IsAdmin)
-                    {
-                        MessageBox.Show("Chào mừng Admin!");
-                    }
-                    else
-                    {
-                        // Điều hướng đến trang ChatPage
-                        var chatViewModel = new ChatViewModel { CurrentUser = new User { Name = loginViewModel.Name } };
-                        var chatPage = new ChatPage { DataContext = chatViewModel };
-                        MainFrame.Navigate(chatPage);
-                    }
-                }
-            };
+            // Navigate to the login page
+            this.navigationServiceEx.Navigate(new Uri("Views/LoginPage.xaml", UriKind.RelativeOrAbsolute));
+
+            // Set up the DataContext for the window
+            var shellViewModel = new ShellViewModel();
+            this.DataContext = shellViewModel;
+
+            // Subscribe to login success event (you'll need to implement this)
+            Messenger.Register<LoginSuccessMessage>(this, OnLoginSuccess);
         }
 
         private void HamburgerMenuControl_OnItemInvoked(object sender, HamburgerMenuItemInvokedEventArgs e)
@@ -57,69 +50,61 @@ namespace ChatApp
 
         private void NavigationServiceEx_OnNavigated(object sender, NavigationEventArgs e)
         {
-            // select the menu item
-            this.HamburgerMenuControl.SetCurrentValue(HamburgerMenu.SelectedItemProperty,
-                this.HamburgerMenuControl.Items
-                    .OfType<MenuItem>()
-                    .FirstOrDefault(x => x.NavigationDestination == e.Uri));
-            this.HamburgerMenuControl.SetCurrentValue(HamburgerMenu.SelectedOptionsItemProperty,
-                this.HamburgerMenuControl
-                    .OptionsItems
-                    .OfType<MenuItem>()
-                    .FirstOrDefault(x => x.NavigationDestination == e.Uri));
+            // Update selected item in the HamburgerMenu
+            if (this.HamburgerMenuControl.ItemsSource is IEnumerable<MenuItem> menuItems)
+            {
+                var selectedItem = menuItems.FirstOrDefault(x => x.NavigationDestination == e.Uri);
+                if (selectedItem != null)
+                {
+                    this.HamburgerMenuControl.SelectedItem = selectedItem;
+                }
+            }
 
-            // or when using the NavigationType on menu item
-            // this.HamburgerMenuControl.SelectedItem = this.HamburgerMenuControl
-            //                                              .Items
-            //                                              .OfType<MenuItem>()
-            //                                              .FirstOrDefault(x => x.NavigationType == e.Content?.GetType());
-            // this.HamburgerMenuControl.SelectedOptionsItem = this.HamburgerMenuControl
-            //                                                     .OptionsItems
-            //                                                     .OfType<MenuItem>()
-            //                                                     .FirstOrDefault(x => x.NavigationType == e.Content?.GetType());
+            // Update selected option item in the HamburgerMenu
+            if (this.HamburgerMenuControl.OptionsItemsSource is IEnumerable<MenuItem> optionItems)
+            {
+                var selectedOptionItem = optionItems.FirstOrDefault(x => x.NavigationDestination == e.Uri);
+                if (selectedOptionItem != null)
+                {
+                    this.HamburgerMenuControl.SelectedOptionsItem = selectedOptionItem;
+                }
+            }
 
-            // update back button
-            this.GoBackButton.SetCurrentValue(VisibilityProperty, this.navigationServiceEx.CanGoBack ? Visibility.Visible : Visibility.Collapsed);
+            // Update back button visibility
+            this.GoBackButton.Visibility = this.navigationServiceEx.CanGoBack ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        
         private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
         {
             this.navigationServiceEx.Navigate(new Uri("Views/SettingsPage.xaml", UriKind.RelativeOrAbsolute));
         }
-       
-        private void OnLoginSuccess(string userName, bool isAdmin)
+
+        private void OnLoginSuccess(LoginSuccessMessage message)
         {
-            if (isAdmin)
+            if (message.IsAdmin)
             {
-                // Mở trang hoặc cung cấp quyền truy cập cho admin
                 MessageBox.Show("Chào mừng Admin!");
-                // Có thể điều hướng đến trang quản trị
+                // Navigate to admin page if you have one
+                // this.navigationServiceEx.Navigate(new Uri("Views/AdminPage.xaml", UriKind.RelativeOrAbsolute));
             }
             else
             {
-                // Khởi tạo trang chat cho người dùng thường
-                var chatViewModel = new ChatViewModel
-                {
-                    CurrentUser = new User { Name = userName }
-                };
-
-                var chatPage = new ChatPage();
-                chatPage.DataContext = chatViewModel;
-
-                // Điều hướng tới trang Chat
                 this.navigationServiceEx.Navigate(new Uri("Views/ChatPage.xaml", UriKind.RelativeOrAbsolute));
             }
         }
+
         private void GoBack_OnClick(object sender, RoutedEventArgs e)
         {
-            // Kiểm tra nếu có thể quay lại trang trước
             if (this.navigationServiceEx.CanGoBack)
             {
                 this.navigationServiceEx.GoBack();
             }
         }
 
-
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Messenger.Unregister<LoginSuccessMessage>(this);
+        }
     }
 }

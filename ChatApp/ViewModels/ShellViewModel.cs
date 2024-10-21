@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using ChatApp.Mvvm;
-using System.Configuration;
-using MahApps.Metro.IconPacks;
-using ChatApp.Mvvm;
 using ChatApp.Views;
 
 namespace ChatApp.ViewModels
@@ -17,21 +14,12 @@ namespace ChatApp.ViewModels
         {
             Menu = new ObservableCollection<MenuItem>
             {
-                new MenuItem { Label = "Home", NavigationDestination = new System.Uri("Views/HomePage.xaml", System.UriKind.Relative) },
-                new MenuItem { Label = "Settings", NavigationDestination = new System.Uri("Views/SettingsPage.xaml", System.UriKind.Relative) }
+                new MenuItem { Label = "Chat", Icon = "\uE8BD", NavigationDestination = new Uri("Views/ChatPage.xaml", UriKind.RelativeOrAbsolute), IsNavigation = true }
             };
-
             OptionsMenu = new ObservableCollection<MenuItem>
             {
-                new MenuItem { Label = "About", NavigationDestination = new System.Uri("Views/AboutPage.xaml", System.UriKind.Relative) }
+                new MenuItem { Label = "Settings", Icon = "\uE713", NavigationDestination = new Uri("Views/SettingsPage.xaml", UriKind.RelativeOrAbsolute), IsNavigation = true },
             };
         }
-    }
-
-    public class MenuItem : BindableBase
-    {
-        public string Label { get; set; }
-        public object Icon { get; set; }
-        public System.Uri NavigationDestination { get; set; }
     }
 }
