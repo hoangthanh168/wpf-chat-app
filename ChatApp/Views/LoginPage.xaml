@@ -4,15 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
     mc:Ignorable="d">
     <Grid>
         <StackPanel
             Width="300"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
-            <!--  Tiêu đề trang đăng nhập  -->
             <TextBlock
                 Margin="0,0,0,20"
                 HorizontalAlignment="Center"
@@ -20,34 +17,42 @@
                 FontWeight="Bold"
                 Text="Login" />
 
-            <!--  Nhập tên người dùng  -->
             <TextBlock
                 Margin="0,0,0,5"
                 FontSize="16"
-                Text="Name:" />
+                Text="Username:" />
             <TextBox
-                x:Name="NameTextBox"
+                x:Name="UsernameTextBox"
                 Margin="0,0,0,20"
-                FontSize="14" />
+                FontSize="14"
+                Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
 
-            <!--  Nhập địa chỉ IP  -->
             <TextBlock
                 Margin="0,0,0,5"
                 FontSize="16"
-                Text="IP Address:" />
-            <TextBox
-                x:Name="IpTextBox"
+                Text="Password:" />
+            <PasswordBox
+                x:Name="PasswordBox"
                 Margin="0,0,0,20"
-                FontSize="14" />
+                FontSize="14"
+                PasswordChanged="PasswordBox_PasswordChanged" />
 
-            <!--  Nút đăng nhập  -->
+            <!-- TextBlock hiển thị thông báo lỗi -->
+            <TextBlock
+                Margin="0,0,0,10"
+                Foreground="Red"
+                FontSize="14"
+                Text="{Binding ErrorMessage}"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+
+            <!-- Nút đăng nhập -->
             <Button
                 Margin="0,20,0,0"
                 Padding="10"
-                Click="LoginButton_Click"
                 Command="{Binding LoginCommand}"
                 Content="Login"
                 FontSize="16" />
         </StackPanel>
     </Grid>
 </UserControl>
+

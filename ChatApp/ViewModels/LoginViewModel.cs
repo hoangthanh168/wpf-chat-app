@@ -1,28 +1,47 @@
 ﻿using ChatApp.Mvvm;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace ChatApp.ViewModels
 {
     public class LoginViewModel : BindableBase
     {
+        private readonly IServiceProvider _serviceProvider;
         private string _username;
         private string _password;
+        private string _errorMessage;
 
         public string Username
         {
             get => _username;
-            set => SetProperty(ref _username, value);
+            set
+            {
+                SetProperty(ref _username, value);
+                LoginCommand.RaiseCanExecuteChanged();
+            }
         }
 
         public string Password
         {
             get => _password;
-            set => SetProperty(ref _password, value);
+            set
+            {
+                SetProperty(ref _password, value);
+                LoginCommand.RaiseCanExecuteChanged();
+            }
+        }
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set => SetProperty(ref _errorMessage, value);
         }
 
         public DelegateCommand LoginCommand { get; }
 
-        public LoginViewModel()
+        public LoginViewModel(IServiceProvider serviceProvider)
         {
+            _serviceProvider = serviceProvider;
             LoginCommand = new DelegateCommand(ExecuteLogin, CanExecuteLogin);
         }
 
@@ -33,15 +52,16 @@ namespace ChatApp.ViewModels
 
         private void ExecuteLogin()
         {
-            // Perform login logic here
-            bool isLoginSuccessful = true; // Replace with actual login check
-            bool isAdmin = false; // Replace with actual admin check
-
-            if (isLoginSuccessful)
+            if (Username == "user" && Password == "password")
             {
-                // Use our custom Messenger to send the login success message
-                Messenger.Send(new LoginSuccessMessage(Username, isAdmin));
+                var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
+                shellViewModel.ShowMainView();
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password. Please try again.";
             }
         }
     }
+
 }

@@ -1,31 +1,39 @@
 ﻿using System;
-using ChatApp.Mvvm;
+using System.Windows;
+using MahApps.Metro.Controls;
 
 namespace ChatApp.ViewModels
 {
-    public class MenuItem : BindableBase
+    public class MenuItem : HamburgerMenuIconItem
     {
-        private string _label;
-        public string Label
+        /// <summary>Identifies the <see cref="NavigationDestination"/> dependency property.</summary>
+        public static readonly DependencyProperty NavigationDestinationProperty
+            = DependencyProperty.Register(
+                nameof(NavigationDestination),
+                typeof(Uri),
+                typeof(MenuItem),
+                new PropertyMetadata(default(Uri)));
+
+        public Uri NavigationDestination
         {
-            get => _label;
-            set => SetProperty(ref _label, value);
+            get => (Uri)this.GetValue(NavigationDestinationProperty);
+            set => this.SetValue(NavigationDestinationProperty, value);
         }
 
-        private string _icon;
-        public string Icon
+        /// <summary>Identifies the <see cref="NavigationType"/> dependency property.</summary>
+        public static readonly DependencyProperty NavigationTypeProperty
+            = DependencyProperty.Register(
+                nameof(NavigationType),
+                typeof(Type),
+                typeof(MenuItem),
+                new PropertyMetadata(default(Type)));
+
+        public Type NavigationType
         {
-            get => _icon;
-            set => SetProperty(ref _icon, value);
+            get => (Type)this.GetValue(NavigationTypeProperty);
+            set => this.SetValue(NavigationTypeProperty, value);
         }
 
-        public Uri NavigationDestination { get; set; }
-
-        private bool _isNavigation;
-        public bool IsNavigation
-        {
-            get => _isNavigation;
-            set => SetProperty(ref _isNavigation, value);
-        }
+        public bool IsNavigation => this.NavigationDestination != null;
     }
 }

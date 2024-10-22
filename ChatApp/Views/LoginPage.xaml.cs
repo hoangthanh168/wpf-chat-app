@@ -6,36 +6,24 @@ namespace ChatApp.Views
 {
     public partial class LoginPage : UserControl
     {
-        public LoginPage()
+        private readonly LoginViewModel _viewModel;
+
+        public LoginPage(LoginViewModel viewModel)
         {
             InitializeComponent();
+            _viewModel = viewModel;
+            DataContext = _viewModel;
         }
-
-        private void LoginButton_Click(object sender, RoutedEventArgs e)
+        public LoginPage()
         {
-            // Lấy thông tin từ các ô nhập liệu
-            string name = NameTextBox.Text;
-            string ipAddress = IpTextBox.Text;
-
-            // Kiểm tra nếu thông tin hợp lệ
-            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(ipAddress))
+                
+        }
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (_viewModel != null)
             {
-                MessageBox.Show("Vui lòng nhập đầy đủ tên và địa chỉ IP.");
-                return;
+                _viewModel.Password = ((PasswordBox)sender).Password;
             }
-
-            // Kiểm tra địa chỉ IP có hợp lệ không
-            if (!System.Net.IPAddress.TryParse(ipAddress, out _))
-            {
-                MessageBox.Show("Địa chỉ IP không hợp lệ.");
-                return;
-            }
-
-            // Nếu thông tin hợp lệ, tiến hành đăng nhập
-            MessageBox.Show($"Đăng nhập thành công!\nTên: {name}\nIP: {ipAddress}");
-            this.DataContext = new LoginViewModel();
-
-            // Tại đây bạn có thể tiếp tục điều hướng hoặc xử lý logic đăng nhập
         }
     }
 }
