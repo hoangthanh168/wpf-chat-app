@@ -1,4 +1,5 @@
-﻿using ChatApp.Navigation;
+﻿using ChatApp.Core;
+using ChatApp.Navigation;
 using ChatApp.ViewModels;
 using ChatApp.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,12 +25,22 @@ namespace ChatApp
             services.AddSingleton<ShellViewModel>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<MainViewModel>();
+            services.AddTransient<ChatViewModel>();
+            services.AddTransient<SettingsViewModel>();
+            services.AddTransient<RegisterViewModel>();
 
             services.AddSingleton<MainWindow>();
-            services.AddTransient<LoginPage>();
+            services.AddTransient<LoginView>();
             services.AddTransient<MainView>();
+            services.AddTransient<ChatView>();
+            services.AddTransient<SettingsView>();
+            services.AddTransient<RegisterView>();
 
             services.AddTransient<NavigationServiceEx>();
+            services.AddSingleton<ClientSocket>();
+
+            // Register core chat services
+            services.AddChatAppServices();
         }
 
         protected override void OnStartup(StartupEventArgs e)

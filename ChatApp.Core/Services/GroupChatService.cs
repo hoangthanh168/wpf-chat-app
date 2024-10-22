@@ -1,57 +1,53 @@
-﻿// GroupChatService.cs
-using ChatApp.Core.Models;
-using ChatApp.Core.Repositories;
-using ChatApp.Core.Services;
+﻿using ChatApp.Core.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace ChatServer.Services
+namespace ChatApp.Core.Services
 {
-    public class GroupChatService : IGroupChatService
+    public class GroupChatService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-        public GroupChatService(IUnitOfWork unitOfWork)
+        public GroupChatService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
+        // Create a group chat
         public void CreateGroupChat(GroupChat groupChat)
         {
-            _unitOfWork.GroupChats.Add(groupChat);
-            _unitOfWork.Complete();
+            _context.GroupChats.Add(groupChat);
+            _context.SaveChanges();
         }
 
-        public void DeleteGroupChat(int id)
+        // Add a user to a group
+        public void AddUserToGroup(int groupId, int userId)
         {
-            var groupChat = _unitOfWork.GroupChats.GetById(id);
-            if (groupChat != null)
+            var groupMember = new GroupMember
             {
-                _unitOfWork.GroupChats.Remove(groupChat);
-                _unitOfWork.Complete();
-            }
+                GroupID = groupId,
+                UserID = userId,
+                JoinedAt = DateTime.Now
+            };
+
+            _context.GroupMembers.Add(groupMember);
+            _context.SaveChanges();
         }
 
-        public IEnumerable<GroupChat> GetAllGroupChats()
+        // Get group chat by ID
+        public GroupChat GetGroupById(int groupId)
         {
-            return _unitOfWork.GroupChats.GetAll();
+            return _context.GroupChats.Find(groupId);
         }
 
-        public GroupChat GetGroupChatById(int id)
+        // Get all members of a group chat
+        public List<User> GetGroupMembers(int groupId)
         {
-            return _unitOfWork.GroupChats.GetGroupChatWithMembers(id);
+            return _context.GroupMembers
+                           .Where(gm => gm.GroupID == groupId)
+                           .Select(gm => gm.User)
+                           .ToList();
         }
-
-        public IEnumerable<GroupChat> GetGroupChatsByUserId(int userId)
-        {
-            return _unitOfWork.GroupChats.GetGroupChatsByUserId(userId);
-        }
-
-        public void UpdateGroupChat(GroupChat groupChat)
-        {
-            _unitOfWork.GroupChats.Update(groupChat);
-            _unitOfWork.Complete();
-        }
-
-        // Thêm các phương thức đặc thù nếu cần
     }
 }

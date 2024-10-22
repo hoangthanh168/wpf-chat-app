@@ -1,4 +1,5 @@
 ﻿using ChatApp.Mvvm;
+using ChatApp.Views;
 using MahApps.Metro.IconPacks;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,8 @@ namespace ChatApp.ViewModels
                 {
                     Label = "Chat",
                     Icon = new PackIconBootstrapIcons() { Kind = PackIconBootstrapIconsKind.Chat },
-                    NavigationDestination = new Uri("Views/ChatPage.xaml", UriKind.Relative)
+                    NavigationDestination = new Uri("Views/ChatView.xaml", UriKind.Relative),
+                    NavigationType = typeof(ChatView),
                 }
             };
 
@@ -33,7 +35,8 @@ namespace ChatApp.ViewModels
                 {
                     Label = "Settings",
                     Icon = new PackIconUnicons() { Kind = PackIconUniconsKind.CogLine },
-                    NavigationDestination = new Uri("Views/SettingsPage.xaml", UriKind.Relative)
+                    NavigationDestination = new Uri("Views/SettingsView.xaml", UriKind.Relative),
+                    NavigationType = typeof(SettingsView),
                 }
             };
         }

@@ -4,19 +4,15 @@ using System.Windows.Controls;
 
 namespace ChatApp.Views
 {
-    public partial class LoginPage : UserControl
+    public partial class LoginView : UserControl
     {
         private readonly LoginViewModel _viewModel;
 
-        public LoginPage(LoginViewModel viewModel)
+        public LoginView(LoginViewModel viewModel)
         {
             InitializeComponent();
             _viewModel = viewModel;
             DataContext = _viewModel;
-        }
-        public LoginPage()
-        {
-                
         }
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
         {

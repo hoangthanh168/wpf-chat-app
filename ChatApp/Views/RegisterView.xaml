@@ -1,0 +1,92 @@
+﻿<UserControl
+    x:Class="ChatApp.Views.RegisterView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <Grid>
+        <StackPanel
+            Width="300"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center">
+            <TextBlock
+                Margin="0,0,0,20"
+                HorizontalAlignment="Center"
+                FontSize="30"
+                FontWeight="Bold"
+                Text="Register" />
+
+            <TextBlock
+                Margin="0,0,0,5"
+                FontSize="16"
+                Text="Username:" />
+            <TextBox
+                x:Name="RegisterUsernameTextBox"
+                Margin="0,0,0,20"
+                FontSize="14"
+                Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBlock
+                Margin="0,0,0,5"
+                FontSize="16"
+                Text="Password:" />
+            <PasswordBox
+                x:Name="RegisterPasswordBox"
+                Margin="0,0,0,20"
+                FontSize="14"
+                PasswordChanged="PasswordBox_PasswordChanged" />
+
+            <TextBlock
+                Margin="0,0,0,5"
+                FontSize="16"
+                Text="Confirm Password:" />
+            <PasswordBox
+                x:Name="ConfirmPasswordBox"
+                Margin="0,0,0,20"
+                FontSize="14"
+                PasswordChanged="ConfirmPasswordBox_PasswordChanged" />
+
+            <!--  TextBlock hiển thị thông báo lỗi  -->
+            <TextBlock
+                Margin="0,0,0,10"
+                FontSize="14"
+                Foreground="Red"
+                Text="{Binding ErrorMessage}"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+
+            <!--  Nút đăng ký  -->
+            <Button
+                Margin="0,20,0,0"
+                Padding="10"
+                Command="{Binding RegisterCommand}"
+                Content="Register"
+                FontSize="16" />
+
+            <!--  Nút chuyển qua Login  -->
+            <TextBlock
+                Margin="0,20,0,0"
+                HorizontalAlignment="Center"
+                Cursor="Hand"
+                FontSize="14"
+                Foreground="Blue"
+                Text="Already have an account? Login"
+                TextDecorations="Underline">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Opacity" Value="0.8" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="1" />
+                                <Setter Property="Foreground" Value="DarkBlue" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+                <TextBlock.InputBindings>
+                    <MouseBinding Command="{Binding ShowLoginCommand}" MouseAction="LeftClick" />
+                </TextBlock.InputBindings>
+            </TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>

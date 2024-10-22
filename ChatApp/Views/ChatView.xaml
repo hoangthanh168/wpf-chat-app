@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="ChatApp.Views.ChatPage"
+    x:Class="ChatApp.Views.ChatView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
@@ -9,7 +9,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Grid>
-        <!--  Define Rows and Columns for Layout  -->
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -19,7 +18,6 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!--  User and Group List  -->
         <ListBox
             x:Name="UserGroupList"
             Grid.Row="0"
@@ -35,7 +33,6 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!--  Message List  -->
         <ListBox
             x:Name="MessageList"
             Grid.Row="0"
@@ -50,7 +47,6 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <!--  Message Input Area  -->
         <Grid
             Grid.Row="1"
             Grid.Column="1"
@@ -60,7 +56,6 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!--  Message Input TextBox  -->
             <TextBox
                 x:Name="MessageInput"
                 Grid.Column="0"
@@ -69,11 +64,9 @@
                 VerticalAlignment="Center"
                 controls:TextBoxHelper.Watermark="Type your message here..."
                 AcceptsReturn="True"
-                KeyDown="MessageInput_KeyDown"
                 Text="{Binding MessageInput, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="Wrap" />
 
-            <!--  Send Button  -->
             <Button
                 x:Name="SendButton"
                 Grid.Column="1"

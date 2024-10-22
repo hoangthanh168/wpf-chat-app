@@ -1,50 +1,83 @@
-﻿using System.Windows.Input;
-using ChatApp.Mvvm;
+﻿using ChatApp.Mvvm;
+using System;
+using System.Windows.Input;
 
 namespace ChatApp.ViewModels
 {
     public class SettingsViewModel : BindableBase
     {
-        private bool _enableNotifications;
-        public bool EnableNotifications
+        private string _ipAddress;
+        private string _port;
+        private string _connectionStatus;
+        private ClientSocket _clientSocket;
+        private readonly ShellViewModel _shellViewModel;
+
+        public SettingsViewModel(ClientSocket clientSocket, ShellViewModel shellViewModel)
         {
-            get => _enableNotifications;
-            set => SetProperty(ref _enableNotifications, value);
+            _clientSocket = clientSocket;
+            _shellViewModel = shellViewModel;
+            ConnectCommand = new DelegateCommand(ConnectToServer);
+            LogoutCommand = new DelegateCommand(Logout);
+            ConnectionStatus = "Disconnected";
         }
 
-        private string _selectedTheme;
-        public string SelectedTheme
+        public string IpAddress
         {
-            get => _selectedTheme;
-            set => SetProperty(ref _selectedTheme, value);
+            get => _ipAddress;
+            set => SetProperty(ref _ipAddress, value);
         }
 
-        private string _selectedLanguage;
-        public string SelectedLanguage
+        public string Port
         {
-            get => _selectedLanguage;
-            set => SetProperty(ref _selectedLanguage, value);
+            get => _port;
+            set => SetProperty(ref _port, value);
         }
 
-        public ICommand SaveCommand { get; }
-
-        public SettingsViewModel()
+        public string ConnectionStatus
         {
-            // Initialize with default values or load from settings
-            EnableNotifications = true;
-            SelectedTheme = "Light";
-            SelectedLanguage = "English";
-
-            SaveCommand = new DelegateCommand(SaveSettings);
+            get => _connectionStatus;
+            set => SetProperty(ref _connectionStatus, value);
         }
 
-        private void SaveSettings()
+        public ICommand ConnectCommand { get; }
+        public ICommand LogoutCommand { get; }
+
+        private void ConnectToServer()
         {
-            // Implement logic to save settings
-            // For example:
-            // SaveSettingsToFile();
-            // or
-            // UpdateSettingsInDatabase();
+            if (string.IsNullOrEmpty(IpAddress) || string.IsNullOrEmpty(Port))
+            {
+                ConnectionStatus = "Please provide both IP address and port.";
+                return;
+            }
+
+            if (!int.TryParse(Port, out int portNumber))
+            {
+                ConnectionStatus = "Invalid port number.";
+                return;
+            }
+
+            try
+            {
+                _clientSocket.Connect(IpAddress, portNumber);
+                ConnectionStatus = "Connected successfully!";
+            }
+            catch (Exception ex)
+            {
+                ConnectionStatus = $"Connection failed: {ex.Message}";
+            }
+        }
+
+        private void Logout()
+        {
+            if (_clientSocket.IsConnected)
+            {
+                _clientSocket.Disconnect();
+            }
+
+            ConnectionStatus = "Disconnected";
+
+            // Navigate back to the login view
+            _shellViewModel.ShowLoginView();
         }
     }
 }

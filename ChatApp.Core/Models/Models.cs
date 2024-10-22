@@ -20,7 +20,6 @@ namespace ChatApp.Core.Models
 
         public DateTime CreatedAt { get; set; }
 
-        // Navigation Properties
         public ICollection<GroupMember> GroupMembers { get; set; }
         public ICollection<Message> Messages { get; set; }
     }
@@ -32,21 +31,18 @@ namespace ChatApp.Core.Models
 
         public DateTime JoinedAt { get; set; }
 
-        // Navigation Properties
         [ForeignKey("GroupID")]
         public GroupChat GroupChat { get; set; }
 
         [ForeignKey("UserID")]
         public User User { get; set; }
     }
-   
 
     public class Message
     {
         [Key]
         public int MessageID { get; set; }
 
-        // Foreign Keys
         public int SenderID { get; set; }
         public int? ReceiverID { get; set; }
         public int? GroupID { get; set; }
@@ -58,7 +54,6 @@ namespace ChatApp.Core.Models
 
         public bool IsGroupMessage { get; set; }
 
-        // Navigation Properties
         [ForeignKey("SenderID")]
         public User Sender { get; set; }
 
@@ -76,11 +71,9 @@ namespace ChatApp.Core.Models
         [Key]
         public int OfflineMessageID { get; set; }
 
-        // Foreign Keys
         public int UserID { get; set; }
         public int MessageID { get; set; }
 
-        // Navigation Properties
         [ForeignKey("UserID")]
         public User User { get; set; }
 
@@ -103,10 +96,6 @@ namespace ChatApp.Core.Models
         [MaxLength(100)]
         public string DisplayName { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-
         public DateTime CreatedAt { get; set; }
 
         public DateTime LastLogin { get; set; }
@@ -114,7 +103,6 @@ namespace ChatApp.Core.Models
         [MaxLength(20)]
         public string Status { get; set; }
 
-        // Navigation Properties
         public ICollection<GroupMember> GroupMembers { get; set; }
         public ICollection<Message> SentMessages { get; set; }
         public ICollection<Message> ReceivedMessages { get; set; }

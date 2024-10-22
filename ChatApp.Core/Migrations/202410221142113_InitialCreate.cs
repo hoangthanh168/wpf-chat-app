@@ -1,4 +1,4 @@
-﻿namespace ChatServer.Migrations
+﻿namespace ChatApp.Core.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;

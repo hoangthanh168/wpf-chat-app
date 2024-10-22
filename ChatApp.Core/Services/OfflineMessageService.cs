@@ -1,57 +1,33 @@
-﻿// OfflineMessageService.cs
-using ChatApp.Core.Models;
-using ChatApp.Core.Repositories;
-using ChatApp.Core.Services;
+﻿using ChatApp.Core.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace ChatServer.Services
+namespace ChatApp.Core.Services
 {
-    public class OfflineMessageService : IOfflineMessageService
+    public class OfflineMessageService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-        public OfflineMessageService(IUnitOfWork unitOfWork)
+        public OfflineMessageService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        public void CreateOfflineMessage(OfflineMessage offlineMessage)
+        public List<OfflineMessage> GetOfflineMessagesByUserId(int userId)
         {
-            _unitOfWork.OfflineMessages.Add(offlineMessage);
-            _unitOfWork.Complete();
+            return _context.OfflineMessages.Where(om => om.UserID == userId).ToList();
         }
 
-        public void DeleteOfflineMessage(int id)
+        // Remove offline message after delivery
+        public void RemoveOfflineMessage(int offlineMessageId)
         {
-            var offlineMessage = _unitOfWork.OfflineMessages.GetById(id);
+            var offlineMessage = _context.OfflineMessages.Find(offlineMessageId);
             if (offlineMessage != null)
             {
-                _unitOfWork.OfflineMessages.Remove(offlineMessage);
-                _unitOfWork.Complete();
+                _context.OfflineMessages.Remove(offlineMessage);
+                _context.SaveChanges();
             }
         }
-
-        public IEnumerable<OfflineMessage> GetAllOfflineMessages()
-        {
-            return _unitOfWork.OfflineMessages.GetAll();
-        }
-
-        public OfflineMessage GetOfflineMessageById(int id)
-        {
-            return _unitOfWork.OfflineMessages.GetById(id);
-        }
-
-        public IEnumerable<OfflineMessage> GetOfflineMessagesByUserId(int userId)
-        {
-            return _unitOfWork.OfflineMessages.GetOfflineMessagesByUserId(userId);
-        }
-
-        public void UpdateOfflineMessage(OfflineMessage offlineMessage)
-        {
-            _unitOfWork.OfflineMessages.Update(offlineMessage);
-            _unitOfWork.Complete();
-        }
-
-        // Thêm các phương thức đặc thù nếu cần
     }
 }

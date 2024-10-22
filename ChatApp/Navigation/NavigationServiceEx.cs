@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using Microsoft.Extensions.DependencyInjection; // Cần để sử dụng IServiceProvider
 
 namespace ChatApp.Navigation
 {
     public class NavigationServiceEx
     {
         public event NavigatedEventHandler Navigated;
-
         public event NavigationFailedEventHandler NavigationFailed;
 
         private Frame _frame;
+        private readonly IServiceProvider _serviceProvider;
+
+        // Constructor nhận vào IServiceProvider
+        public NavigationServiceEx(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         public Frame Frame
         {
@@ -40,6 +47,7 @@ namespace ChatApp.Navigation
 
         public void GoForward() => this.Frame.GoForward();
 
+        // Điều hướng bằng URI (có sẵn)
         public bool Navigate(Uri sourcePageUri, object extraData = null)
         {
             if (this.Frame.CurrentSource != sourcePageUri)
@@ -50,11 +58,28 @@ namespace ChatApp.Navigation
             return false;
         }
 
-        public bool Navigate(Type sourceType)
+        // Điều hướng bằng kiểu ViewModel đã đăng ký trong DI
+        public bool Navigate<T>() where T : UserControl
         {
-            if (this.Frame.NavigationService?.Content?.GetType() != sourceType)
+            var view = _serviceProvider.GetRequiredService<T>();
+            if (this.Frame.Content?.GetType() != view.GetType())
             {
-                return this.Frame.Navigate(Activator.CreateInstance(sourceType));
+                this.Frame.Content = view;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool Navigate(Type viewType)
+        {
+            // Resolve the view from the service provider using the Type
+            var view = _serviceProvider.GetRequiredService(viewType) as UserControl;
+
+            if (view != null && this.Frame.Content?.GetType() != view.GetType())
+            {
+                this.Frame.Content = view;
+                return true;
             }
 
             return false;
