@@ -15,7 +15,8 @@ namespace ChatApp.Core.Services
             _context = context;
         }
 
-        // Create a new user
+
+
         public void CreateUser(User user)
         {
             _context.Users.Add(user);
@@ -23,29 +24,30 @@ namespace ChatApp.Core.Services
         }
 
 
-        // Find user by ID
         public User GetUserById(int id)
         {
             return _context.Users.Find(id);
         }
 
-        // Find user by username
         public User GetUserByUsername(string username)
         {
             return _context.Users.FirstOrDefault(u => u.Username == username);
         }
 
-        // Check user login
         public User Authenticate(string username, string passwordHash)
         {
             return _context.Users.FirstOrDefault(u => u.Username == username && u.PasswordHash == passwordHash);
         }
 
-        // Update user info
         public void UpdateUser(User user)
         {
             _context.Entry(user).State = EntityState.Modified;
             _context.SaveChanges();
+        }
+
+        public List<User> GetAllUsers()
+        {
+            return _context.Users.ToList();
         }
     }
 }

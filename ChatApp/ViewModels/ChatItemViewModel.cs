@@ -1,9 +1,5 @@
 ﻿using ChatApp.Mvvm;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatApp.ViewModels
 {
@@ -12,6 +8,9 @@ namespace ChatApp.ViewModels
         private string _displayName;
         private string _lastMessage;
         private bool _isSelected;
+        private int _userId;
+        private int _groupId;
+        private bool _isGroup;
 
         public string DisplayName
         {
@@ -25,14 +24,33 @@ namespace ChatApp.ViewModels
             set => SetProperty(ref _lastMessage, value);
         }
 
-        // Thuộc tính này giúp xác định item hiện tại có được chọn hay không
         public bool IsSelected
         {
             get => _isSelected;
             set => SetProperty(ref _isSelected, value);
         }
 
-        // Bạn có thể thêm command hoặc logic khác nếu cần thiết
+        public int UserId
+        {
+            get => _userId;
+            set => SetProperty(ref _userId, value);
+        }
+
+        public int GroupId
+        {
+            get => _groupId;
+            set => SetProperty(ref _groupId, value);
+        }
+
+        public bool IsGroup
+        {
+            get => _isGroup;
+            set => SetProperty(ref _isGroup, value);
+        }
+
+        public ChatItemViewModel()
+        {
+
+        }
     }
 }
- 

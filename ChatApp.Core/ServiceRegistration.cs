@@ -13,6 +13,7 @@ namespace ChatApp.Core
             services.AddScoped<GroupMemberService>();
             services.AddScoped<MessageService>();
             services.AddScoped<OfflineMessageService>();
+            services.AddScoped<UserSessionService>();
         }
     }
 }

@@ -8,14 +8,12 @@ namespace ChatApp.Core.Utils
 {
     public class Security
     {
-        private static readonly string EncryptionKey = "YourSecretEncryptionKey123!"; // Replace with your own key
+        private static readonly string EncryptionKey = "YourSecretEncryptionKey123!";
 
-        // Ensure the key is exactly 32 bytes for AES-256 encryption
         private static byte[] GetValidKey(string key)
         {
             byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
-            // If the key is not 32 bytes, pad or truncate to make it 32 bytes (for AES-256)
             if (keyBytes.Length < 32)
             {
                 Array.Resize(ref keyBytes, 32);
@@ -28,14 +26,13 @@ namespace ChatApp.Core.Utils
             return keyBytes;
         }
 
-        // Encrypt a string using AES algorithm
         public static string Encrypt(string plainText)
         {
             byte[] keyBytes = GetValidKey(EncryptionKey);
             using (Aes aes = Aes.Create())
             {
                 aes.Key = keyBytes;
-                aes.IV = keyBytes.Take(16).ToArray();  // Use the first 16 bytes for IV
+                aes.IV = keyBytes.Take(16).ToArray();
 
                 using (MemoryStream memoryStream = new MemoryStream())
                 {
@@ -49,14 +46,13 @@ namespace ChatApp.Core.Utils
             }
         }
 
-        // Decrypt a string using AES algorithm
         public static string Decrypt(string cipherText)
         {
             byte[] keyBytes = GetValidKey(EncryptionKey);
             using (Aes aes = Aes.Create())
             {
                 aes.Key = keyBytes;
-                aes.IV = keyBytes.Take(16).ToArray();  // Use the first 16 bytes for IV
+                aes.IV = keyBytes.Take(16).ToArray();
 
                 byte[] cipherBytes = Convert.FromBase64String(cipherText);
                 using (MemoryStream memoryStream = new MemoryStream(cipherBytes))

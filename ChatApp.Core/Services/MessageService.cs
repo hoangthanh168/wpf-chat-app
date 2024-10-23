@@ -14,26 +14,22 @@ namespace ChatApp.Core.Services
             _context = context;
         }
 
-        // Send a message
-        public void SendMessage(Message message)
+        public void SaveMessage(Message message)
         {
             _context.Messages.Add(message);
             _context.SaveChanges();
         }
 
-        // Get all messages in a group chat
         public List<Message> GetMessagesByGroupId(int groupId)
         {
             return _context.Messages.Where(m => m.GroupID == groupId).ToList();
         }
 
-        // Get all private messages between two users
         public List<Message> GetPrivateMessages(int senderId, int receiverId)
         {
             return _context.Messages.Where(m => m.SenderID == senderId && m.ReceiverID == receiverId).ToList();
         }
 
-        // Save offline message
         public void SaveOfflineMessage(OfflineMessage offlineMessage)
         {
             _context.OfflineMessages.Add(offlineMessage);

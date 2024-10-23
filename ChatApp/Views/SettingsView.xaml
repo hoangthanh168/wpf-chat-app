@@ -24,9 +24,15 @@
                 Command="{Binding ConnectCommand}"
                 Content="Connect" />
 
+            <Button
+                Width="100"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Command="{Binding DisconnectCommand}"
+                Content="Disconnect" />
+
             <TextBlock Margin="0,10,0,0" Text="{Binding ConnectionStatus}" />
 
-            <!--  New Logout Button  -->
             <Button
                 Width="100"
                 Margin="0,10,0,0"

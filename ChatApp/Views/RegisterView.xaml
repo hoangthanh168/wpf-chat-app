@@ -7,7 +7,7 @@
     mc:Ignorable="d">
     <Grid>
         <StackPanel
-            Width="300"
+            Width="400"
             HorizontalAlignment="Center"
             VerticalAlignment="Center">
             <TextBlock

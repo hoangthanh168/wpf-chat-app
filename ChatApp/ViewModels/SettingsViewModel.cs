@@ -1,6 +1,8 @@
 ﻿using ChatApp.Mvvm;
 using System;
 using System.Windows.Input;
+using System.Threading.Tasks;
+using ChatApp.Core.Models;
 
 namespace ChatApp.ViewModels
 {
@@ -16,9 +18,14 @@ namespace ChatApp.ViewModels
         {
             _clientSocket = clientSocket;
             _shellViewModel = shellViewModel;
-            ConnectCommand = new DelegateCommand(ConnectToServer);
+            ConnectCommand = new DelegateCommand(async () => await ConnectToServer());
+            DisconnectCommand = new DelegateCommand(DisconnectFromServer);
             LogoutCommand = new DelegateCommand(Logout);
-            ConnectionStatus = "Disconnected";
+
+            _clientSocket.OnConnected += HandleConnected;
+            _clientSocket.OnDisconnected += HandleDisconnected;
+
+            ConnectionStatus = "Chưa kết nối";
         }
 
         public string IpAddress
@@ -40,30 +47,43 @@ namespace ChatApp.ViewModels
         }
 
         public ICommand ConnectCommand { get; }
+        public ICommand DisconnectCommand { get; }
         public ICommand LogoutCommand { get; }
 
-        private void ConnectToServer()
+        private async Task ConnectToServer()
         {
             if (string.IsNullOrEmpty(IpAddress) || string.IsNullOrEmpty(Port))
             {
-                ConnectionStatus = "Please provide both IP address and port.";
+                ConnectionStatus = "Vui lòng cung cấp cả địa chỉ IP và cổng.";
                 return;
             }
 
             if (!int.TryParse(Port, out int portNumber))
             {
-                ConnectionStatus = "Invalid port number.";
+                ConnectionStatus = "Số cổng không hợp lệ.";
                 return;
             }
 
             try
             {
-                _clientSocket.Connect(IpAddress, portNumber);
-                ConnectionStatus = "Connected successfully!";
+                await _clientSocket.ConnectAsync(IpAddress, portNumber);
             }
             catch (Exception ex)
             {
-                ConnectionStatus = $"Connection failed: {ex.Message}";
+                ConnectionStatus = $"Kết nối thất bại: {ex.Message}";
+            }
+        }
+
+        private void DisconnectFromServer()
+        {
+            if (_clientSocket.IsConnected)
+            {
+                _clientSocket.Disconnect();
+                ConnectionStatus = "Ngắt kết nối thành công!";
+            }
+            else
+            {
+                ConnectionStatus = "Đã ngắt kết nối.";
             }
         }
 
@@ -74,10 +94,19 @@ namespace ChatApp.ViewModels
                 _clientSocket.Disconnect();
             }
 
-            ConnectionStatus = "Disconnected";
+            ConnectionStatus = "Đã ngắt kết nối";
 
-            // Navigate back to the login view
             _shellViewModel.ShowLoginView();
+        }
+
+        private void HandleConnected()
+        {
+            ConnectionStatus = "Kết nối thành công!";
+        }
+
+        private void HandleDisconnected()
+        {
+            ConnectionStatus = "Đã ngắt kết nối.";
         }
     }
 }

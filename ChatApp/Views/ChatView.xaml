@@ -25,7 +25,7 @@
             Background="#F0F0F0"
             BorderThickness="0"
             ItemsSource="{Binding UserGroupList}"
-            SelectedItem="{Binding SelectedUserGroup}">
+            SelectedItem="{Binding SelectedChatItem}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <local:ChatItemControl />

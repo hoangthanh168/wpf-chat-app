@@ -93,9 +93,6 @@ namespace ChatApp.Core.Models
         [Required]
         public string PasswordHash { get; set; }
 
-        [MaxLength(100)]
-        public string DisplayName { get; set; }
-
         public DateTime CreatedAt { get; set; }
 
         public DateTime LastLogin { get; set; }
@@ -107,5 +104,25 @@ namespace ChatApp.Core.Models
         public ICollection<Message> SentMessages { get; set; }
         public ICollection<Message> ReceivedMessages { get; set; }
         public ICollection<OfflineMessage> OfflineMessages { get; set; }
+        public ICollection<UserSession> UserSessions { get; set; }
+    }
+    public class UserSession
+    {
+        [Key]
+        public int SessionID { get; set; }
+
+        public int UserID { get; set; }
+
+        public string ClientEndpoint { get; set; }
+
+        public DateTime ConnectedAt { get; set; }
+
+        public DateTime LastActivity { get; set; }
+
+        [ForeignKey("UserID")]
+        public User User { get; set; }
+
+        [MaxLength(20)]
+        public string SessionStatus { get; set; }
     }
 }

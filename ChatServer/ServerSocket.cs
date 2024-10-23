@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using ChatApp.Core.Models;
+using ChatApp.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ChatServer
 {
@@ -12,10 +18,17 @@ namespace ChatServer
     {
         private TcpListener _listener;
         private bool _isRunning;
-        private readonly ConcurrentDictionary<string, TcpClient> _clients = new ConcurrentDictionary<string, TcpClient>();
+        private readonly ConcurrentDictionary<string, TcpClient> _clients =
+            new ConcurrentDictionary<string, TcpClient>();
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public event Action<string> OnMessageLogged;
         public event Action<List<string>> OnClientListUpdated;
+
+        public ServerSocket(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory;
+        }
 
         public async Task StartServer(string ipAddress, int port)
         {
@@ -39,7 +52,7 @@ namespace ChatServer
                 _listener.Start();
                 _isRunning = true;
 
-                LogMessage($"Server started on {ip}:{port}");
+                LogMessage($"Máy chủ đã khởi động tại {ip}:{port}");
 
                 while (_isRunning)
                 {
@@ -49,7 +62,7 @@ namespace ChatServer
             }
             catch (Exception ex)
             {
-                LogMessage($"Error: {ex.Message}");
+                LogMessage($"Lỗi: {ex.Message}");
             }
         }
 
@@ -59,14 +72,19 @@ namespace ChatServer
             {
                 _isRunning = false;
                 _listener.Stop();
-                LogMessage("Server stopped.");
+                LogMessage("Máy chủ đã dừng.");
 
-                // Disconnect all clients
                 foreach (var client in _clients.Values)
                 {
                     client.Close();
                 }
                 _clients.Clear();
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var sessionService =
+                        scope.ServiceProvider.GetRequiredService<UserSessionService>();
+                    sessionService.CleanUpInactiveSessions(TimeSpan.Zero);
+                }
                 UpdateClientList();
             }
         }
@@ -76,49 +94,190 @@ namespace ChatServer
             string clientEndpoint = client.Client.RemoteEndPoint.ToString();
             if (_clients.TryAdd(clientEndpoint, client))
             {
-                LogMessage($"Client connected: {clientEndpoint}");
+                LogMessage($"Client đã kết nối: {clientEndpoint}");
                 UpdateClientList();
 
                 try
                 {
                     NetworkStream stream = client.GetStream();
-                    byte[] buffer = new byte[1024];
+                    byte[] buffer = new byte[4096];
                     int bytesRead;
 
                     while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) != 0)
                     {
-                        string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                        LogMessage($"Received from {clientEndpoint}: {message}");
+                        string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
-                        // Optionally, you can broadcast the message to other clients
-                        // await BroadcastMessage($"{clientEndpoint}: {message}", clientEndpoint);
+                        var dto = JsonConvert.DeserializeObject<ChatDTO.ClientMessageDTO>(
+                            receivedData
+                        );
+
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var userService =
+                                scope.ServiceProvider.GetRequiredService<UserService>();
+                            var messageService =
+                                scope.ServiceProvider.GetRequiredService<MessageService>();
+                            var sessionService =
+                                scope.ServiceProvider.GetRequiredService<UserSessionService>();
+
+                            switch (dto.Type)
+                            {
+                                case ChatDTO.MessageType.Login:
+                                    await HandleLogin(
+                                        dto,
+                                        clientEndpoint,
+                                        userService,
+                                        sessionService
+                                    );
+                                    break;
+                                case ChatDTO.MessageType.SendMessage:
+                                    await HandleSendMessage(
+                                        dto,
+                                        clientEndpoint,
+                                        messageService,
+                                        sessionService
+                                    );
+                                    break;
+                                default:
+                                    LogMessage($"Kiểu tin nhắn không xác định từ {clientEndpoint}");
+                                    break;
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    LogMessage($"Client {clientEndpoint} error: {ex.Message}");
+                    LogMessage($"Lỗi từ Client {clientEndpoint}: {ex.Message}");
                 }
                 finally
                 {
                     if (_clients.TryRemove(clientEndpoint, out _))
                     {
                         client.Close();
-                        LogMessage($"Client disconnected: {clientEndpoint}");
+                        LogMessage($"Client đã ngắt kết nối: {clientEndpoint}");
                         UpdateClientList();
+
+                        using (var scope = _scopeFactory.CreateScope())
+                        {
+                            var sessionService =
+                                scope.ServiceProvider.GetRequiredService<UserSessionService>();
+                            sessionService.CleanUpInactiveSessions(TimeSpan.Zero);
+                        }
                     }
                 }
             }
             else
             {
-                LogMessage($"Failed to add client: {clientEndpoint}");
+                LogMessage($"Không thể thêm Client: {clientEndpoint}");
                 client.Close();
             }
         }
 
-        private void LogMessage(string message)
+        private async Task HandleSendMessage(
+            ChatDTO.ClientMessageDTO dto,
+            string clientEndpoint,
+            MessageService messageService,
+            UserSessionService sessionService
+        )
         {
-            OnMessageLogged?.Invoke(message);
+            var sendMessageRequest = ((JObject)dto.Payload).ToObject<ChatDTO.SendMessageDTO>();
+
+            var message = new Message
+            {
+                SenderID = sendMessageRequest.SenderId,
+                Content = sendMessageRequest.Content,
+                SentAt = DateTime.UtcNow,
+            };
+
+            if (sendMessageRequest.IsGroupMessage)
+            {
+                message.GroupID = sendMessageRequest.GroupId;
+                messageService.SaveMessage(message);
+
+                await SendMessageToAll(
+                    $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
+                );
+            }
+            else
+            {
+                message.ReceiverID = sendMessageRequest.ReceiverId;
+                messageService.SaveMessage(message);
+
+                var receiverSession = sessionService.GetActiveSession(
+                    (int)sendMessageRequest.ReceiverId
+                );
+                if (receiverSession != null)
+                {
+                    await SendMessageToClient(
+                        receiverSession.ClientEndpoint,
+                        $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
+                    );
+                }
+            }
         }
+
+        private async Task HandleLogin(
+            ChatDTO.ClientMessageDTO dto,
+            string clientEndpoint,
+            UserService userService,
+            UserSessionService sessionService
+        )
+        {
+            var loginRequest = ((JObject)dto.Payload).ToObject<ChatDTO.LoginRequestDTO>();
+            var user = userService.Authenticate(loginRequest.Username, loginRequest.PasswordHash);
+
+            if (user != null)
+            {
+                sessionService.CreateSession(user.UserID, clientEndpoint);
+            }
+
+            string message =
+                user != null ? "Đăng nhập thành công." : "Thông tin đăng nhập không hợp lệ.";
+            await SendMessageToClient(clientEndpoint, message);
+        }
+
+        public async Task SendMessageToClient(string clientEndpoint, string message)
+        {
+            if (_clients.TryGetValue(clientEndpoint, out TcpClient client))
+            {
+                try
+                {
+                    var sendMessageDTO = new ChatDTO.SendMessageDTO
+                    {
+                        SenderId = 0,
+                        Content = message,
+                        IsGroupMessage = false,
+                        SentAt = DateTime.UtcNow,
+                    };
+
+                    NetworkStream stream = client.GetStream();
+
+                    var serverMessage = new ChatDTO.ServerMessageDTO
+                    {
+                        Type = ChatDTO.MessageType.SendMessage,
+                        Payload = sendMessageDTO,
+                    };
+
+                    string messageJson = JsonConvert.SerializeObject(serverMessage);
+
+                    byte[] data = Encoding.UTF8.GetBytes(messageJson);
+
+                    await stream.WriteAsync(data, 0, data.Length);
+
+                    LogMessage($"Gửi tới {clientEndpoint}: {message}");
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"Lỗi khi gửi tới {clientEndpoint}: {ex.Message}");
+                }
+            }
+            else
+            {
+                LogMessage($"Không tìm thấy Client {clientEndpoint}.");
+            }
+        }
+
+        private void LogMessage(string message) => OnMessageLogged?.Invoke(message);
 
         private void UpdateClientList()
         {
@@ -126,50 +285,13 @@ namespace ChatServer
             OnClientListUpdated?.Invoke(clientList);
         }
 
-        // Method to send a message to a specific client
-        public async Task SendMessageToClient(string clientEndpoint, string message)
-        {
-            if (_clients.TryGetValue(clientEndpoint, out TcpClient client))
-            {
-                try
-                {
-                    NetworkStream stream = client.GetStream();
-                    byte[] data = Encoding.UTF8.GetBytes(message);
-                    await stream.WriteAsync(data, 0, data.Length);
-                    LogMessage($"Sent to {clientEndpoint}: {message}");
-                }
-                catch (Exception ex)
-                {
-                    LogMessage($"Error sending to {clientEndpoint}: {ex.Message}");
-                }
-            }
-            else
-            {
-                LogMessage($"Client {clientEndpoint} not found.");
-            }
-        }
-
-        // Method to send a message to all connected clients
         public async Task SendMessageToAll(string message)
         {
             foreach (var clientEndpoint in _clients.Keys)
             {
                 await SendMessageToClient(clientEndpoint, message);
             }
-            LogMessage($"Sent to all: {message}");
-        }
-
-        // Optional: Broadcast message to all clients except the sender
-        public async Task BroadcastMessage(string message, string senderEndpoint)
-        {
-            foreach (var clientEndpoint in _clients.Keys)
-            {
-                if (clientEndpoint != senderEndpoint)
-                {
-                    await SendMessageToClient(clientEndpoint, message);
-                }
-            }
-            LogMessage($"Broadcasted: {message}");
+            LogMessage($"Gửi tới tất cả: {message}");
         }
     }
 }

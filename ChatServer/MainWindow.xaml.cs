@@ -1,25 +1,25 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace ChatServer
 {
     public partial class MainWindow : Window
     {
-        private ServerSocket _server;
+        private readonly ServerSocket _serverSocket;
         private static Random _random = new Random();
 
-        public MainWindow()
+        public MainWindow(ServerSocket serverSocket)
         {
             InitializeComponent();
-            _server = new ServerSocket();
-            _server.OnMessageLogged += LogMessageToUI;
-            _server.OnClientListUpdated += UpdateClientListUI;
+            _serverSocket = serverSocket;
+            _serverSocket.OnMessageLogged += LogMessageToUI;
+            _serverSocket.OnClientListUpdated += UpdateClientListUI;
 
-            // Set default IP
             IpTextBox.Text = "127.0.0.1";
-            CancelServerButton.IsEnabled = false; // Disable Cancel button at startup
+            CancelServerButton.IsEnabled = false;
         }
 
         private async void StartServer_Click(object sender, RoutedEventArgs e)
@@ -36,7 +36,7 @@ namespace ChatServer
 
             try
             {
-                await _server.StartServer(ipAddress, port);
+                await _serverSocket.StartServer(ipAddress, port);
             }
             catch (Exception ex)
             {
@@ -48,14 +48,13 @@ namespace ChatServer
 
         private void CancelServer_Click(object sender, RoutedEventArgs e)
         {
-            _server.StopServer();
-            StartServerButton.IsEnabled = true; // Enable Start button when server stops
-            CancelServerButton.IsEnabled = false; // Disable Cancel button when server stops
+            _serverSocket.StopServer();
+            StartServerButton.IsEnabled = true;
+            CancelServerButton.IsEnabled = false;
         }
 
         private void RandomButton_Click(object sender, RoutedEventArgs e)
         {
-            // Only randomize the port
             int randomPort = _random.Next(1024, 65535);
             PortTextBox.Text = randomPort.ToString();
         }
@@ -95,7 +94,7 @@ namespace ChatServer
                 return;
             }
 
-            await _server.SendMessageToClient(selectedClient, message);
+            await _serverSocket.SendMessageToClient(selectedClient, message);
             MessageTextBox.Clear();
         }
 
@@ -109,7 +108,7 @@ namespace ChatServer
                 return;
             }
 
-            await _server.SendMessageToAll(message);
+            await _serverSocket.SendMessageToAll(message);
             MessageTextBox.Clear();
         }
     }
