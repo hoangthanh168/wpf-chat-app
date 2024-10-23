@@ -5,40 +5,81 @@
 
     <Grid Margin="10">
         <StackPanel>
-            <TextBlock Text="Enter Server IP Address:" />
+            <!--  Display User Information Section with enhanced visuals  -->
+            <Border
+                Margin="0,0,0,10"
+                Padding="10"
+                Background="#E6F4FF"
+                BorderBrush="#007ACC"
+                BorderThickness="2"
+                CornerRadius="5">
+                <StackPanel>
+                    <TextBlock
+                        Margin="0,0,0,5"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Foreground="#007ACC"
+                        Text="User Information" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontWeight="SemiBold" Text="Username: " />
+                        <TextBlock Text="{Binding Username}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!--  IP Address Input  -->
+            <TextBlock Margin="10,10,0,0" Text="Enter Server IP Address:" />
             <TextBox
                 Width="200"
                 HorizontalAlignment="Left"
                 Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}" />
 
+            <!--  Port Input  -->
             <TextBlock Margin="0,10,0,0" Text="Enter Server Port:" />
             <TextBox
                 Width="200"
                 HorizontalAlignment="Left"
                 Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" />
 
+            <!--  Connect and Disconnect Buttons  -->
+            <StackPanel
+                Margin="0,10,0,0"
+                HorizontalAlignment="Left"
+                Orientation="Horizontal">
+                <Button
+                    Width="100"
+                    Margin="0,0,10,0"
+                    Background="#28A745"
+                    Command="{Binding ConnectCommand}"
+                    Content="Connect"
+                    FontWeight="Bold"
+                    Foreground="White" />
+                <Button
+                    Width="100"
+                    Background="#DC3545"
+                    Command="{Binding DisconnectCommand}"
+                    Content="Disconnect"
+                    FontWeight="Bold"
+                    Foreground="White" />
+            </StackPanel>
+
+            <!--  Connection Status  -->
+            <TextBlock
+                Margin="0,10,0,0"
+                FontStyle="Italic"
+                Foreground="#007ACC"
+                Text="{Binding ConnectionStatus}" />
+
+            <!--  Logout Button  -->
             <Button
                 Width="100"
                 Margin="0,10,0,0"
                 HorizontalAlignment="Left"
-                Command="{Binding ConnectCommand}"
-                Content="Connect" />
-
-            <Button
-                Width="100"
-                Margin="0,10,0,0"
-                HorizontalAlignment="Left"
-                Command="{Binding DisconnectCommand}"
-                Content="Disconnect" />
-
-            <TextBlock Margin="0,10,0,0" Text="{Binding ConnectionStatus}" />
-
-            <Button
-                Width="100"
-                Margin="0,10,0,0"
-                HorizontalAlignment="Left"
+                Background="#FFC107"
                 Command="{Binding LogoutCommand}"
-                Content="Logout" />
+                Content="Logout"
+                FontWeight="Bold"
+                Foreground="Black" />
         </StackPanel>
     </Grid>
 </UserControl>

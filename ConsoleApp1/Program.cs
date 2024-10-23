@@ -24,7 +24,7 @@ namespace ConsoleApp1
             try
             {
                 await client.ConnectAsync("127.0.0.1", 5000);
-                var passwordHash = Security.Encrypt("hoangthanh");
+                var passwordHash = Security.Encrypt("hoangthanh123");
                 var loginDto = new ChatDTO.ClientMessageDTO
                 {
                     Type = ChatDTO.MessageType.Login,

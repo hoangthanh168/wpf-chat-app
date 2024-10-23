@@ -8,12 +8,16 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows;
+using ChatApp.Core.Models;
+using Newtonsoft.Json.Linq;
 
 namespace ChatApp.ViewModels
 {
     public class LoginViewModel : BindableBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly UserSession _userSession;
+        private readonly ClientSocket _clientSocket;
         private readonly UserService _userService;
         private readonly IConfiguration _configuration;
         private string _username;
@@ -49,12 +53,13 @@ namespace ChatApp.ViewModels
         public DelegateCommand LoginCommand { get; }
         public DelegateCommand ShowRegisterCommand { get; }
 
-        public LoginViewModel(IServiceProvider serviceProvider, IConfiguration configuration)
+        public LoginViewModel(IServiceProvider serviceProvider, UserSession userSession, ClientSocket clientSocket ,IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
+            _userSession = userSession;
+            _clientSocket = clientSocket;
             _userService = _serviceProvider.GetRequiredService<UserService>();
             _configuration = configuration;
-
 
             LoginCommand = new DelegateCommand(ExecuteLogin, CanExecuteLogin);
             ShowRegisterCommand = new DelegateCommand(ExecuteShowRegister);
@@ -66,16 +71,17 @@ namespace ChatApp.ViewModels
             return !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
         }
 
-        private void ExecuteLogin()
+        private async void ExecuteLogin()
         {
             var encryptedPassword = Security.Encrypt(Password);
             var user = _userService.Authenticate(Username, encryptedPassword);
 
             if (user != null)
             {
-                var userSession = _serviceProvider.GetRequiredService<UserSession>();
-                userSession.CurrentUser = user;
+                _userSession.CurrentUser = user;
 
+
+                
                 SaveCredentials();
 
                 var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();

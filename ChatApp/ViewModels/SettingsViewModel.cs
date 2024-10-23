@@ -3,6 +3,7 @@ using System;
 using System.Windows.Input;
 using System.Threading.Tasks;
 using ChatApp.Core.Models;
+using Newtonsoft.Json.Linq;
 
 namespace ChatApp.ViewModels
 {
@@ -13,11 +14,13 @@ namespace ChatApp.ViewModels
         private string _connectionStatus;
         private ClientSocket _clientSocket;
         private readonly ShellViewModel _shellViewModel;
+        private readonly UserSession _userSession;
 
-        public SettingsViewModel(ClientSocket clientSocket, ShellViewModel shellViewModel)
+        public SettingsViewModel(ClientSocket clientSocket, ShellViewModel shellViewModel, UserSession userSession)
         {
             _clientSocket = clientSocket;
             _shellViewModel = shellViewModel;
+            _userSession = userSession;
             ConnectCommand = new DelegateCommand(async () => await ConnectToServer());
             DisconnectCommand = new DelegateCommand(DisconnectFromServer);
             LogoutCommand = new DelegateCommand(Logout);
@@ -45,6 +48,8 @@ namespace ChatApp.ViewModels
             get => _connectionStatus;
             set => SetProperty(ref _connectionStatus, value);
         }
+        
+        public string Username => _userSession.CurrentUser?.Username;
 
         public ICommand ConnectCommand { get; }
         public ICommand DisconnectCommand { get; }
@@ -67,6 +72,19 @@ namespace ChatApp.ViewModels
             try
             {
                 await _clientSocket.ConnectAsync(IpAddress, portNumber);
+
+                var loginDto = new ChatDTO.ClientMessageDTO
+                {
+                    Type = ChatDTO.MessageType.Login,
+
+                    Payload = JObject.FromObject(new ChatDTO.LoginRequestDTO
+                    {
+                        Username = Username,
+                        PasswordHash = _userSession.CurrentUser.PasswordHash
+                    })
+                };
+                await _clientSocket.SendMessageAsync(loginDto);
+
             }
             catch (Exception ex)
             {

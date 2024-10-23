@@ -82,6 +82,18 @@
     <Compile Include="Migrations\202410231354316_AddUserSession.Designer.cs">
       <DependentUpon>202410231354316_AddUserSession.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202410231517155_UpdateMessage.cs" />
+    <Compile Include="Migrations\202410231517155_UpdateMessage.Designer.cs">
+      <DependentUpon>202410231517155_UpdateMessage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410231523323_MakeGroupIDNullable.cs" />
+    <Compile Include="Migrations\202410231523323_MakeGroupIDNullable.Designer.cs">
+      <DependentUpon>202410231523323_MakeGroupIDNullable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202410231542574_RemoveUserSesssionTable.cs" />
+    <Compile Include="Migrations\202410231542574_RemoveUserSesssionTable.Designer.cs">
+      <DependentUpon>202410231542574_RemoveUserSesssionTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Models.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -91,7 +103,6 @@
     <Compile Include="Services\MessageService.cs" />
     <Compile Include="Services\OfflineMessageService.cs" />
     <Compile Include="Services\UserService.cs" />
-    <Compile Include="Services\UserSessionService.cs" />
     <Compile Include="Utils\SecurityUtils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +114,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202410231354316_AddUserSession.resx">
       <DependentUpon>202410231354316_AddUserSession.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410231517155_UpdateMessage.resx">
+      <DependentUpon>202410231517155_UpdateMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410231523323_MakeGroupIDNullable.resx">
+      <DependentUpon>202410231523323_MakeGroupIDNullable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410231542574_RemoveUserSesssionTable.resx">
+      <DependentUpon>202410231542574_RemoveUserSesssionTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

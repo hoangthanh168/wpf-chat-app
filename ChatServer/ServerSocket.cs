@@ -20,6 +20,8 @@ namespace ChatServer
         private bool _isRunning;
         private readonly ConcurrentDictionary<string, TcpClient> _clients =
             new ConcurrentDictionary<string, TcpClient>();
+        private readonly ConcurrentDictionary<int, string> _userIdToEndpointMap =
+            new ConcurrentDictionary<int, string>();
         private readonly IServiceScopeFactory _scopeFactory;
 
         public event Action<string> OnMessageLogged;
@@ -66,6 +68,7 @@ namespace ChatServer
             }
         }
 
+
         public void StopServer()
         {
             if (_isRunning)
@@ -79,12 +82,7 @@ namespace ChatServer
                     client.Close();
                 }
                 _clients.Clear();
-                using (var scope = _scopeFactory.CreateScope())
-                {
-                    var sessionService =
-                        scope.ServiceProvider.GetRequiredService<UserSessionService>();
-                    sessionService.CleanUpInactiveSessions(TimeSpan.Zero);
-                }
+                _userIdToEndpointMap.Clear();
                 UpdateClientList();
             }
         }
@@ -117,26 +115,14 @@ namespace ChatServer
                                 scope.ServiceProvider.GetRequiredService<UserService>();
                             var messageService =
                                 scope.ServiceProvider.GetRequiredService<MessageService>();
-                            var sessionService =
-                                scope.ServiceProvider.GetRequiredService<UserSessionService>();
 
                             switch (dto.Type)
                             {
                                 case ChatDTO.MessageType.Login:
-                                    await HandleLogin(
-                                        dto,
-                                        clientEndpoint,
-                                        userService,
-                                        sessionService
-                                    );
+                                    await HandleLogin(dto, clientEndpoint, userService);
                                     break;
                                 case ChatDTO.MessageType.SendMessage:
-                                    await HandleSendMessage(
-                                        dto,
-                                        clientEndpoint,
-                                        messageService,
-                                        sessionService
-                                    );
+                                    await HandleSendMessage(dto, clientEndpoint, messageService);
                                     break;
                                 default:
                                     LogMessage($"Kiểu tin nhắn không xác định từ {clientEndpoint}");
@@ -157,11 +143,12 @@ namespace ChatServer
                         LogMessage($"Client đã ngắt kết nối: {clientEndpoint}");
                         UpdateClientList();
 
-                        using (var scope = _scopeFactory.CreateScope())
+                        var userId = _userIdToEndpointMap
+                            .FirstOrDefault(x => x.Value == clientEndpoint)
+                            .Key;
+                        if (userId != 0)
                         {
-                            var sessionService =
-                                scope.ServiceProvider.GetRequiredService<UserSessionService>();
-                            sessionService.CleanUpInactiveSessions(TimeSpan.Zero);
+                            _userIdToEndpointMap.TryRemove(userId, out _);
                         }
                     }
                 }
@@ -176,41 +163,36 @@ namespace ChatServer
         private async Task HandleSendMessage(
             ChatDTO.ClientMessageDTO dto,
             string clientEndpoint,
-            MessageService messageService,
-            UserSessionService sessionService
+            MessageService messageService
         )
         {
             var sendMessageRequest = ((JObject)dto.Payload).ToObject<ChatDTO.SendMessageDTO>();
 
-            var message = new Message
+            if (sendMessageRequest.IsGroupMessage || sendMessageRequest.ReceiverId == 0)
             {
-                SenderID = sendMessageRequest.SenderId,
-                Content = sendMessageRequest.Content,
-                SentAt = DateTime.UtcNow,
-            };
-
-            if (sendMessageRequest.IsGroupMessage)
-            {
-                message.GroupID = sendMessageRequest.GroupId;
-                messageService.SaveMessage(message);
-
                 await SendMessageToAll(
                     $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
                 );
             }
             else
             {
-                message.ReceiverID = sendMessageRequest.ReceiverId;
-                messageService.SaveMessage(message);
-
-                var receiverSession = sessionService.GetActiveSession(
-                    (int)sendMessageRequest.ReceiverId
-                );
-                if (receiverSession != null)
+                if (
+                    _userIdToEndpointMap.TryGetValue(
+                        (int)sendMessageRequest.ReceiverId,
+                        out string receiverEndpoint
+                    )
+                )
                 {
                     await SendMessageToClient(
-                        receiverSession.ClientEndpoint,
+                        receiverEndpoint,
                         $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
+                    );
+                }
+                else
+                {
+                    await SendMessageToClient(
+                        clientEndpoint,
+                        "Không tìm thấy Receiver hoặc Receiver không kết nối."
                     );
                 }
             }
@@ -219,8 +201,7 @@ namespace ChatServer
         private async Task HandleLogin(
             ChatDTO.ClientMessageDTO dto,
             string clientEndpoint,
-            UserService userService,
-            UserSessionService sessionService
+            UserService userService
         )
         {
             var loginRequest = ((JObject)dto.Payload).ToObject<ChatDTO.LoginRequestDTO>();
@@ -228,9 +209,8 @@ namespace ChatServer
 
             if (user != null)
             {
-                sessionService.CreateSession(user.UserID, clientEndpoint);
+                _userIdToEndpointMap[user.UserID] = clientEndpoint;
             }
-
             string message =
                 user != null ? "Đăng nhập thành công." : "Thông tin đăng nhập không hợp lệ.";
             await SendMessageToClient(clientEndpoint, message);
@@ -242,9 +222,14 @@ namespace ChatServer
             {
                 try
                 {
+                    var userId = _userIdToEndpointMap
+                        .FirstOrDefault(x => x.Value == clientEndpoint)
+                        .Key;
+
                     var sendMessageDTO = new ChatDTO.SendMessageDTO
                     {
                         SenderId = 0,
+                        ReceiverId = userId,
                         Content = message,
                         IsGroupMessage = false,
                         SentAt = DateTime.UtcNow,
@@ -276,6 +261,7 @@ namespace ChatServer
                 LogMessage($"Không tìm thấy Client {clientEndpoint}.");
             }
         }
+
 
         private void LogMessage(string message) => OnMessageLogged?.Invoke(message);
 

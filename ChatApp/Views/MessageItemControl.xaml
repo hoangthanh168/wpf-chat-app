@@ -24,10 +24,7 @@
 
     <Border Style="{StaticResource MessageBubbleStyle}">
         <StackPanel>
-            <TextBlock
-                FontWeight="Bold"
-                Text="{Binding SenderName}"
-                Visibility="{Binding IsSentByCurrentUser, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=False}" />
+            <TextBlock FontWeight="Bold" Text="{Binding SenderName}" />
             <TextBlock Text="{Binding Content}" TextWrapping="Wrap" />
             <TextBlock
                 HorizontalAlignment="Right"

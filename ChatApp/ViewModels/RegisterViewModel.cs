@@ -1,124 +1,121 @@
-﻿    using ChatApp.Core.Models;
-    using ChatApp.Core.Services;
+﻿using ChatApp.Core.Models;
+using ChatApp.Core.Services;
 using ChatApp.Core.Utils;
 using ChatApp.Mvvm;
-    using Microsoft.Extensions.DependencyInjection;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
-    namespace ChatApp.ViewModels
+namespace ChatApp.ViewModels
+{
+    public class RegisterViewModel : BindableBase
     {
-        public class RegisterViewModel : BindableBase
+        private readonly IServiceProvider _serviceProvider;
+        private readonly UserSession _userSession;
+        private readonly UserService _userService;
+        private string _username;
+        private string _password;
+        private string _confirmPassword;
+        private string _errorMessage;
+
+        [Required(ErrorMessage = "Tên người dùng là bắt buộc.")]
+        [MinLength(3, ErrorMessage = "Tên người dùng phải có ít nhất 3 ký tự.")]
+        public string Username
         {
-            private readonly IServiceProvider _serviceProvider;
-            private readonly UserService _userService;
-            private string _username;
-            private string _password;
-            private string _confirmPassword;
-            private string _errorMessage;
-
-            [Required(ErrorMessage = "Username is required.")]
-            [MinLength(3, ErrorMessage = "Username must be at least 3 characters long.")]
-            public string Username
+            get => _username;
+            set
             {
-                get => _username;
-                set
-                {
-                    SetProperty(ref _username, value);
-                    RegisterCommand.RaiseCanExecuteChanged();
-                }
+                SetProperty(ref _username, value);
+                RegisterCommand.RaiseCanExecuteChanged();
             }
+        }
 
-            [Required(ErrorMessage = "Password is required.")]
-            [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
-            public string Password
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc.")]
+        [MinLength(6, ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự.")]
+        public string Password
+        {
+            get => _password;
+            set
             {
-                get => _password;
-                set
-                {
-                    SetProperty(ref _password, value);
-                    RegisterCommand.RaiseCanExecuteChanged();
-                }
+                SetProperty(ref _password, value);
+                RegisterCommand.RaiseCanExecuteChanged();
             }
+        }
 
-            [Required(ErrorMessage = "Please confirm your password.")]
-            [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
-            public string ConfirmPassword
+        [Required(ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
+        [Compare(nameof(Password), ErrorMessage = "Mật khẩu không khớp.")]
+        public string ConfirmPassword
+        {
+            get => _confirmPassword;
+            set
             {
-                get => _confirmPassword;
-                set
-                {
-                    SetProperty(ref _confirmPassword, value);
-                    RegisterCommand.RaiseCanExecuteChanged();
-                }
+                SetProperty(ref _confirmPassword, value);
+                RegisterCommand.RaiseCanExecuteChanged();
             }
+        }
 
-            public string ErrorMessage
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set => SetProperty(ref _errorMessage, value);
+        }
+
+        public DelegateCommand RegisterCommand { get; }
+        public DelegateCommand ShowLoginCommand { get; }
+
+        public RegisterViewModel(IServiceProvider serviceProvider, UserSession userSession)
+        {
+            _serviceProvider = serviceProvider;
+            _userSession = userSession;
+            _userService = _serviceProvider.GetRequiredService<UserService>();
+
+            RegisterCommand = new DelegateCommand(ExecuteRegister, CanExecuteRegister);
+            ShowLoginCommand = new DelegateCommand(ExecuteShowLogin);
+        }
+
+        private bool CanExecuteRegister()
+        {
+            var validationContext = new ValidationContext(this);
+            var validationResults = new List<ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
+            ErrorMessage = string.Join(Environment.NewLine, validationResults.Select(r => r.ErrorMessage));
+            return isValid;
+        }
+
+        private void ExecuteRegister()
+        {
+            var existingUser = _userService.GetUserByUsername(Username);
+            if (existingUser != null)
             {
-                get => _errorMessage;
-                private set => SetProperty(ref _errorMessage, value);
+                ErrorMessage = "Tên người dùng đã tồn tại. Vui lòng chọn một tên người dùng khác.";
+                return;
             }
 
-            public DelegateCommand RegisterCommand { get; }
-            public DelegateCommand ShowLoginCommand { get; }
+            string encryptedPassword = Security.Encrypt(Password);
 
-            public RegisterViewModel(IServiceProvider serviceProvider)
+            var newUser = new User
             {
-                _serviceProvider = serviceProvider;
-                _userService = _serviceProvider.GetRequiredService<UserService>();
+                Username = Username,
+                PasswordHash = encryptedPassword,
+                CreatedAt = DateTime.UtcNow,
+                LastLogin = DateTime.UtcNow
+            };
 
-                RegisterCommand = new DelegateCommand(ExecuteRegister, CanExecuteRegister);
-                ShowLoginCommand = new DelegateCommand(ExecuteShowLogin);
-            }
+            _userSession.CurrentUser = newUser;
 
-            private bool CanExecuteRegister()
-            {
-                // Perform validation for each field before allowing the command to be executed
-                var validationContext = new ValidationContext(this);
-                var validationResults = new List<ValidationResult>();
+            _userService.CreateUser(newUser);
 
-                bool isValid = Validator.TryValidateObject(this, validationContext, validationResults, true);
-                ErrorMessage = string.Join(Environment.NewLine, validationResults.Select(r => r.ErrorMessage));
-                return isValid;
-            }
+            var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
+            shellViewModel.ShowMainView();
+        }
 
-            private void ExecuteRegister()
-            {
-                // Check if the username already exists
-                var existingUser = _userService.GetUserByUsername(Username);
-                if (existingUser != null)
-                {
-                    ErrorMessage = "Username already exists. Please choose a different username.";
-                    return;
-                }
-
-                // Encrypt the password before saving
-                string encryptedPassword = Security.Encrypt(Password);
-
-                // Create a new User object with the encrypted password
-                var newUser = new User
-                {
-                    Username = Username,
-                    PasswordHash = encryptedPassword,  // Storing the encrypted password
-                    CreatedAt = DateTime.UtcNow,
-                    LastLogin = DateTime.UtcNow
-                };
-
-                // Save the new user using the UserService
-                _userService.CreateUser(newUser);
-
-                // Navigate to the main view after successful registration
-                var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
-                shellViewModel.ShowMainView();
-            }
-
-
-            private void ExecuteShowLogin()
-                {
-                    var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
-                    shellViewModel.ShowLoginView();
-                }
-            }
+        private void ExecuteShowLogin()
+        {
+            var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
+            shellViewModel.ShowLoginView();
+        }
     }
+}

@@ -15,7 +15,6 @@ namespace ChatApp.Core
         public DbSet<GroupChat> GroupChats { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
         public DbSet<OfflineMessage> OfflineMessages { get; set; }
-        public DbSet<UserSession> UserSessions { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -49,7 +48,7 @@ namespace ChatApp.Core
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Message>()
-                .HasRequired(m => m.GroupChat)
+                .HasOptional(m => m.GroupChat)
                 .WithMany(gc => gc.Messages)
                 .HasForeignKey(m => m.GroupID)
                 .WillCascadeOnDelete(true);
@@ -64,12 +63,6 @@ namespace ChatApp.Core
                 .HasRequired(om => om.Message)
                 .WithMany(m => m.OfflineMessages)
                 .HasForeignKey(om => om.MessageID)
-                .WillCascadeOnDelete(false);
-
-            modelBuilder.Entity<UserSession>()
-                .HasRequired(us => us.User)
-                .WithMany(u => u.UserSessions)
-                .HasForeignKey(us => us.UserID)
                 .WillCascadeOnDelete(false);
         }
     }

@@ -27,7 +27,7 @@ namespace ChatApp.Core.Services
 
         public List<Message> GetPrivateMessages(int senderId, int receiverId)
         {
-            return _context.Messages.Where(m => m.SenderID == senderId && m.ReceiverID == receiverId).ToList();
+            return _context.Messages?.Where(m => m.SenderID == senderId && m.ReceiverID == receiverId).ToList();
         }
 
         public void SaveOfflineMessage(OfflineMessage offlineMessage)
