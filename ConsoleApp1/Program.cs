@@ -1,7 +1,6 @@
 ﻿using ChatApp;
 using ChatApp.Core.Models;
 using ChatApp.Core.Utils;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text;
@@ -12,7 +11,7 @@ namespace ConsoleApp1
     class Program
     {
 
-        
+
         static async Task Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;

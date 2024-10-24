@@ -7,13 +7,13 @@ namespace ChatApp.Core.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class InitialCreate : IMigrationMetadata
+    public sealed partial class RemoveGroupChat : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialCreate));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(RemoveGroupChat));
         
         string IMigrationMetadata.Id
         {
-            get { return "202410221142113_InitialCreate"; }
+            get { return "202410240600436_RemoveGroupChat"; }
         }
         
         string IMigrationMetadata.Source

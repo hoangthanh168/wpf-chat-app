@@ -1,5 +1,4 @@
 ﻿using ChatApp.Core;
-using ChatApp.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
@@ -16,12 +15,13 @@ namespace ChatServer
             ConfigureServices(services);
 
             _serviceProvider = services.BuildServiceProvider();
+            UserCreation.SeedFirstUser(_serviceProvider);
         }
 
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddChatAppServices();
-            services.AddSingleton<ServerSocket>(); 
+            services.AddSingleton<ServerSocket>();
             services.AddSingleton<MainWindow>();
 
         }
@@ -32,5 +32,7 @@ namespace ChatServer
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
+
+
     }
 }

@@ -19,11 +19,11 @@ namespace ChatApp
             IConfigurationBuilder builder = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true);
             _configuration = builder.Build();
 
-
             var services = new ServiceCollection();
             ConfigureServices(services);
 
             _serviceProvider = services.BuildServiceProvider();
+            UserCreation.SeedFirstUser(_serviceProvider);
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -33,7 +33,7 @@ namespace ChatApp
             services.AddSingleton<ShellViewModel>();
             services.AddTransient<LoginViewModel>();
             services.AddTransient<MainViewModel>();
-            services.AddSingleton<ChatViewModel>();
+            services.AddTransient<ChatViewModel>();
             services.AddSingleton<SettingsViewModel>();
             services.AddTransient<RegisterViewModel>();
 
@@ -47,8 +47,8 @@ namespace ChatApp
             services.AddTransient<NavigationServiceEx>();
             services.AddSingleton<ClientSocket>();
             services.AddSingleton<UserSession>();
-
             services.AddChatAppServices();
+
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -57,5 +57,7 @@ namespace ChatApp
             mainWindow.Show();
             base.OnStartup(e);
         }
+
+
     }
 }

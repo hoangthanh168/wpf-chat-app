@@ -1,9 +1,9 @@
-﻿using ChatApp.Mvvm;
-using System;
-using System.Windows.Input;
-using System.Threading.Tasks;
-using ChatApp.Core.Models;
+﻿using ChatApp.Core.Models;
+using ChatApp.Mvvm;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ChatApp.ViewModels
 {
@@ -48,7 +48,7 @@ namespace ChatApp.ViewModels
             get => _connectionStatus;
             set => SetProperty(ref _connectionStatus, value);
         }
-        
+
         public string Username => _userSession.CurrentUser?.Username;
 
         public ICommand ConnectCommand { get; }

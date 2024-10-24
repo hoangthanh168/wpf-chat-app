@@ -1,16 +1,20 @@
-﻿using System;
+﻿using ChatApp.Core;
+using ChatApp.Core.Models;
+using ChatApp.Core.Services;
+using ChatApp.Core.Utils;
+using MahApps.Metro.IconPacks.Converter;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
-using ChatApp.Core.Models;
-using ChatApp.Core.Services;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ChatServer
 {
@@ -55,7 +59,6 @@ namespace ChatServer
                 _isRunning = true;
 
                 LogMessage($"Máy chủ đã khởi động tại {ip}:{port}");
-
                 while (_isRunning)
                 {
                     TcpClient client = await _listener.AcceptTcpClientAsync();
@@ -168,7 +171,7 @@ namespace ChatServer
         {
             var sendMessageRequest = ((JObject)dto.Payload).ToObject<ChatDTO.SendMessageDTO>();
 
-            if (sendMessageRequest.IsGroupMessage || sendMessageRequest.ReceiverId == 0)
+            if (sendMessageRequest.IsGroupMessage)
             {
                 await SendMessageToAll(
                     $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
@@ -185,14 +188,15 @@ namespace ChatServer
                 {
                     await SendMessageToClient(
                         receiverEndpoint,
-                        $"{sendMessageRequest.SenderId}: {sendMessageRequest.Content}"
+                        $"{sendMessageRequest.Content}", sendMessageRequest.SenderId
                     );
                 }
                 else
                 {
                     await SendMessageToClient(
                         clientEndpoint,
-                        "Không tìm thấy Receiver hoặc Receiver không kết nối."
+                        "Không tìm thấy Receiver hoặc Receiver không kết nối.",
+                        1
                     );
                 }
             }
@@ -213,10 +217,10 @@ namespace ChatServer
             }
             string message =
                 user != null ? "Đăng nhập thành công." : "Thông tin đăng nhập không hợp lệ.";
-            await SendMessageToClient(clientEndpoint, message);
+            await SendMessageToClient(clientEndpoint, message, 1);
         }
 
-        public async Task SendMessageToClient(string clientEndpoint, string message)
+        public async Task SendMessageToClient(string clientEndpoint, string message, int senderId)
         {
             if (_clients.TryGetValue(clientEndpoint, out TcpClient client))
             {
@@ -228,12 +232,27 @@ namespace ChatServer
 
                     var sendMessageDTO = new ChatDTO.SendMessageDTO
                     {
-                        SenderId = 0,
+                        SenderId = senderId,
                         ReceiverId = userId,
                         Content = message,
                         IsGroupMessage = false,
-                        SentAt = DateTime.UtcNow,
+                        SentAt = TimeUtils.GetCurrentVietnamTime(),
                     };
+
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var messageService = scope.ServiceProvider.GetRequiredService<MessageService>();
+
+                        var newMessage = new Message
+                        {
+                            SenderID = sendMessageDTO.SenderId,
+                            ReceiverID = sendMessageDTO.ReceiverId,
+                            Content = sendMessageDTO.Content,
+                            SentAt = sendMessageDTO.SentAt,
+                        };
+
+                        messageService.SaveMessage(newMessage);
+                    }
 
                     NetworkStream stream = client.GetStream();
 
@@ -263,6 +282,9 @@ namespace ChatServer
         }
 
 
+
+
+
         private void LogMessage(string message) => OnMessageLogged?.Invoke(message);
 
         private void UpdateClientList()
@@ -275,7 +297,7 @@ namespace ChatServer
         {
             foreach (var clientEndpoint in _clients.Keys)
             {
-                await SendMessageToClient(clientEndpoint, message);
+                await SendMessageToClient(clientEndpoint, message, 1);
             }
             LogMessage($"Gửi tới tất cả: {message}");
         }

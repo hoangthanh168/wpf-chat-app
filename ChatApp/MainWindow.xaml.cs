@@ -1,5 +1,5 @@
-﻿using MahApps.Metro.Controls;
-using ChatApp.ViewModels;
+﻿using ChatApp.ViewModels;
+using MahApps.Metro.Controls;
 
 namespace ChatApp
 {

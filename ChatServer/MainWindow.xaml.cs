@@ -1,5 +1,4 @@
-﻿using MahApps.Metro.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Threading;
@@ -94,7 +93,7 @@ namespace ChatServer
                 return;
             }
 
-            await _serverSocket.SendMessageToClient(selectedClient, message);
+            await _serverSocket.SendMessageToClient(selectedClient, message, 1);
             MessageTextBox.Clear();
         }
 

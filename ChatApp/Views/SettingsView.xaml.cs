@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using ChatApp.ViewModels;
+﻿using ChatApp.ViewModels;
+using System.Windows.Controls;
 
 namespace ChatApp.Views
 {

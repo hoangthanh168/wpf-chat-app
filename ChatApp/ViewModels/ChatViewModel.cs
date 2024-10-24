@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
 using System.Windows.Input;
+using ChatApp.Core;
 using ChatApp.Core.Models;
 using ChatApp.Core.Services;
 using ChatApp.Mvvm;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.Windows;
 
 namespace ChatApp.ViewModels
 {
@@ -25,6 +26,7 @@ namespace ChatApp.ViewModels
         private UserSession _userSession;
         private MessageService _messageService;
 
+        public Action<bool> ScrollToEndRequested;
         public ObservableCollection<ChatItemViewModel> UserGroupList
         {
             get => _userGroupList;
@@ -61,7 +63,11 @@ namespace ChatApp.ViewModels
             }
         }
 
-        public ChatViewModel(IServiceProvider serviceProvider, ClientSocket clientSocket, UserSession userSession)
+        public ChatViewModel(
+            IServiceProvider serviceProvider,
+            ClientSocket clientSocket,
+            UserSession userSession
+        )
         {
             UserGroupList = new ObservableCollection<ChatItemViewModel>();
             MessageList = new ObservableCollection<MessageItemViewModel>();
@@ -85,22 +91,26 @@ namespace ChatApp.ViewModels
             }
         }
 
-       
-
         private async void SendMessage()
         {
+            if (SelectedChatItem?.UserId == 1)
+            {
+                MessageBox.Show("Không thể gửi tin nhắn cho người dùng này.", "Lỗi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var sendMessageDTO = new ChatDTO.SendMessageDTO
+            {
+                SenderId = CurrentUser.UserID,
+                ReceiverId = SelectedChatItem?.UserId,
+                GroupId = SelectedChatItem?.GroupId,
+                Content = MessageInput,
+                IsGroupMessage = SelectedChatItem?.IsGroup ?? false,
+                SentAt = TimeUtils.GetCurrentVietnamTime()
+            };
+
             if (_clientSocket != null && _clientSocket.IsConnected)
             {
-                var sendMessageDTO = new ChatDTO.SendMessageDTO
-                {
-                    SenderId = CurrentUser.UserID,
-                    ReceiverId = SelectedChatItem?.UserId,
-                    GroupId = SelectedChatItem?.GroupId,
-                    Content = MessageInput,
-                    IsGroupMessage = SelectedChatItem?.IsGroup ?? false,
-                    SentAt = DateTime.UtcNow,
-                };
-
                 var clientMessageDTO = new ChatDTO.ClientMessageDTO
                 {
                     Type = ChatDTO.MessageType.SendMessage,
@@ -110,6 +120,9 @@ namespace ChatApp.ViewModels
                 try
                 {
                     await _clientSocket.SendMessageAsync(clientMessageDTO);
+
+                    // Thêm tin nhắn vào MessageList ngay khi gửi thành công
+                    AddMessageToMessageList(sendMessageDTO, true);
                     MessageInput = string.Empty;
                 }
                 catch (Exception ex)
@@ -117,7 +130,28 @@ namespace ChatApp.ViewModels
                     Console.WriteLine("Gửi tin nhắn thất bại: " + ex.Message);
                 }
             }
+           
         }
+
+
+ 
+
+        private void AddMessageToMessageList(ChatDTO.SendMessageDTO messageDTO, bool isSentByCurrentUser)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                MessageList.Add(new MessageItemViewModel
+                {
+                    SenderName = GetSenderName(messageDTO.SenderId),
+                    Content = messageDTO.Content,
+                    SentAt = messageDTO.SentAt,
+                    IsSentByCurrentUser = isSentByCurrentUser
+                });
+
+                ScrollToEndRequested?.Invoke(true); // Cuộn xuống cuối danh sách
+            });
+        }
+
 
         private bool CanSendMessage()
         {
@@ -134,16 +168,19 @@ namespace ChatApp.ViewModels
 
                 foreach (var user in users)
                 {
-                    if (user == _userSession.CurrentUser){
+                    if (user == _userSession.CurrentUser)
+                    {
                         continue;
                     }
 
-                    UserGroupList.Add(new ChatItemViewModel
-                    {
-                        UserId = user.UserID,
-                        DisplayName = user.Username,
-                        IsGroup = false
-                    });
+                    UserGroupList.Add(
+                        new ChatItemViewModel
+                        {
+                            UserId = user.UserID,
+                            DisplayName = user.Username,
+                            IsGroup = false,
+                        }
+                    );
                 }
             }
             catch (Exception ex)
@@ -154,7 +191,8 @@ namespace ChatApp.ViewModels
 
         private void LoadMessages()
         {
-            if (SelectedChatItem == null) return;
+            if (SelectedChatItem == null)
+                return;
 
             try
             {
@@ -163,35 +201,36 @@ namespace ChatApp.ViewModels
                 List<Message> currentUserMessages;
                 List<Message> selectedUserMessages = new List<Message>();
 
-                if (SelectedChatItem.IsGroup)
-                {
-                    currentUserMessages = _messageService.GetMessagesByGroupId(SelectedChatItem.GroupId);
-                }
-                else
-                {
-                    currentUserMessages = _messageService.GetPrivateMessages(CurrentUser.UserID, SelectedChatItem.UserId);
-                    selectedUserMessages = _messageService.GetPrivateMessages(SelectedChatItem.UserId, CurrentUser.UserID);
+                currentUserMessages = _messageService.GetPrivateMessages(CurrentUser.UserID, SelectedChatItem.UserId);
+                selectedUserMessages = _messageService.GetPrivateMessages(SelectedChatItem.UserId, CurrentUser.UserID);
 
-                    currentUserMessages.AddRange(selectedUserMessages);
-                }
+                currentUserMessages.AddRange(selectedUserMessages);
 
-                foreach (var message in currentUserMessages)
+                List<Message> allMessages = new List<Message>();
+                allMessages.AddRange(currentUserMessages);
+
+                var sortedMessages = allMessages.OrderBy(m => m.SentAt).ToList();
+
+                foreach (var message in sortedMessages)
                 {
                     MessageList.Add(new MessageItemViewModel
                     {
-                        SenderName = message.Sender.Username,
+                        SenderName = GetSenderName(message.SenderID),
                         Content = message.Content,
                         SentAt = message.SentAt,
-                        IsSentByCurrentUser = message.SenderID == CurrentUser.UserID
+                        IsSentByCurrentUser = message.SenderID == CurrentUser.UserID,
                     });
                 }
+
+                ScrollToEndRequested?.Invoke(true);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to load messages: " + ex.Message);
             }
-
         }
+
+
 
 
         private void HandleMessageReceived(ChatDTO.ServerMessageDTO serverMessage)
@@ -218,7 +257,8 @@ namespace ChatApp.ViewModels
                         var acknowledgmentPayload = serverMessage.Payload as JObject;
                         if (acknowledgmentPayload != null)
                         {
-                            var acknowledgment = acknowledgmentPayload.ToObject<ChatDTO.AcknowledgmentDTO>();
+                            var acknowledgment =
+                                acknowledgmentPayload.ToObject<ChatDTO.AcknowledgmentDTO>();
                             Console.WriteLine($"Acknowledgment received: {acknowledgment.Message}");
                         }
                         break;
@@ -244,25 +284,31 @@ namespace ChatApp.ViewModels
 
             bool isForCurrentChat = SelectedChatItem?.UserId == message.SenderId;
 
+            if (!isForCurrentChat)
+            {
+                return;
+            }
+
             Application.Current.Dispatcher.Invoke(() =>
             {
-                MessageList.Add(new MessageItemViewModel
-                {
-                    SenderName = GetSenderName(message.SenderId),
-                    Content = message.Content,
-                    SentAt = message.SentAt,
-                    IsSentByCurrentUser = message.SenderId == CurrentUser.UserID
-                });
+                MessageList.Add(
+                    new MessageItemViewModel
+                    {
+                        SenderName = GetSenderName(message.SenderId),
+                        Content = message.Content,
+                        SentAt = message.SentAt,
+                        IsSentByCurrentUser = message.SenderId == CurrentUser.UserID,
+                    }
+                );
+
+                ScrollToEndRequested.Invoke(false);
             });
         }
 
-
         private string GetSenderName(int senderId)
         {
-            // Tìm tên người gửi dựa trên senderId
             var user = _userService.GetUserById(senderId);
             return user?.Username ?? "Unknown";
         }
-
     }
 }

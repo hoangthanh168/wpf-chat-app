@@ -9,10 +9,10 @@ namespace ChatApp.Core
         {
             services.AddScoped<AppDbContext>();
             services.AddScoped<UserService>();
-            services.AddScoped<GroupChatService>();
-            services.AddScoped<GroupMemberService>();
             services.AddScoped<MessageService>();
-            services.AddScoped<OfflineMessageService>();
         }
+
+
+
     }
 }

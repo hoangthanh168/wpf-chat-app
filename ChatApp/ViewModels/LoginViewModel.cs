@@ -1,15 +1,11 @@
-﻿using ChatApp.Core.Services;
+﻿using ChatApp.Core.Models;
+using ChatApp.Core.Services;
 using ChatApp.Core.Utils;
 using ChatApp.Mvvm;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using System.Windows;
-using ChatApp.Core.Models;
-using Newtonsoft.Json.Linq;
 
 namespace ChatApp.ViewModels
 {
@@ -52,8 +48,8 @@ namespace ChatApp.ViewModels
 
         public DelegateCommand LoginCommand { get; }
         public DelegateCommand ShowRegisterCommand { get; }
-
-        public LoginViewModel(IServiceProvider serviceProvider, UserSession userSession, ClientSocket clientSocket ,IConfiguration configuration)
+        public Action<User> OnLoginSuccess { get; set; }
+        public LoginViewModel(IServiceProvider serviceProvider, UserSession userSession, ClientSocket clientSocket, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider;
             _userSession = userSession;
@@ -71,7 +67,7 @@ namespace ChatApp.ViewModels
             return !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
         }
 
-        private async void ExecuteLogin()
+        private void ExecuteLogin()
         {
             var encryptedPassword = Security.Encrypt(Password);
             var user = _userService.Authenticate(Username, encryptedPassword);
@@ -81,11 +77,12 @@ namespace ChatApp.ViewModels
                 _userSession.CurrentUser = user;
 
 
-                
+
                 SaveCredentials();
 
                 var shellViewModel = _serviceProvider.GetRequiredService<ShellViewModel>();
                 shellViewModel.ShowMainView();
+                OnLoginSuccess?.Invoke(user);
             }
             else
             {

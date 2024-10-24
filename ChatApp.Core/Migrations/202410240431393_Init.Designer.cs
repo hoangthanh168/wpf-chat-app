@@ -7,13 +7,13 @@ namespace ChatApp.Core.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class RemoveUserSesssionTable : IMigrationMetadata
+    public sealed partial class Init : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(RemoveUserSesssionTable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Init));
         
         string IMigrationMetadata.Id
         {
-            get { return "202410231542574_RemoveUserSesssionTable"; }
+            get { return "202410240431393_Init"; }
         }
         
         string IMigrationMetadata.Source

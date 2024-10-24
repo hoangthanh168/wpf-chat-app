@@ -1,5 +1,4 @@
 ﻿using ChatApp.Mvvm;
-using System;
 
 namespace ChatApp.ViewModels
 {

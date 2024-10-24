@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection; // Cần để sử dụng IServiceProvider
+using System;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using Microsoft.Extensions.DependencyInjection; // Cần để sử dụng IServiceProvider
 
 namespace ChatApp.Navigation
 {

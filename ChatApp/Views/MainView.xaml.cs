@@ -1,7 +1,6 @@
 ﻿using ChatApp.Navigation;
 using ChatApp.ViewModels;
 using MahApps.Metro.Controls;
-using System;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Navigation;

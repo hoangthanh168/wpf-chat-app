@@ -7,13 +7,13 @@ namespace ChatApp.Core.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class MakeGroupIDNullable : IMigrationMetadata
+    public sealed partial class RemoveOfflineMessage : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(MakeGroupIDNullable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(RemoveOfflineMessage));
         
         string IMigrationMetadata.Id
         {
-            get { return "202410231523323_MakeGroupIDNullable"; }
+            get { return "202410240554492_RemoveOfflineMessage"; }
         }
         
         string IMigrationMetadata.Source

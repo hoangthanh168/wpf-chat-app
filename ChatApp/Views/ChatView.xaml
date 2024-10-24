@@ -18,6 +18,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
+        <!--  User Group List with subtle shadow  -->
         <ListBox
             x:Name="UserGroupList"
             Grid.Row="0"
@@ -39,7 +40,8 @@
             Grid.Column="1"
             Background="White"
             BorderThickness="0"
-            ItemsSource="{Binding MessageList}">
+            ItemsSource="{Binding MessageList}"
+            ScrollViewer.ScrollChanged="MessageList_ScrollChanged">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <local:MessageItemControl />
@@ -47,6 +49,8 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+
+        <!--  Input and Send Button with rounded corners and gradient background  -->
         <Grid
             Grid.Row="1"
             Grid.Column="1"
@@ -56,6 +60,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
+            <!--  Message Input with border radius and shadow  -->
             <TextBox
                 x:Name="MessageInput"
                 Grid.Column="0"
@@ -65,8 +70,25 @@
                 controls:TextBoxHelper.Watermark="Type your message here..."
                 AcceptsReturn="True"
                 Text="{Binding MessageInput, UpdateSourceTrigger=PropertyChanged}"
-                TextWrapping="Wrap" />
+                TextWrapping="Wrap">
+                <TextBox.Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="Background" Value="#FFFFFF" />
+                        <Setter Property="Padding" Value="10" />
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect
+                                    BlurRadius="3"
+                                    ShadowDepth="1"
+                                    Color="#CCC" />
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TextBox.Style>
+            </TextBox>
 
+            <!--  Send Button with rounded corners, hover effects, and gradient background  -->
             <Button
                 x:Name="SendButton"
                 Grid.Column="1"
@@ -74,11 +96,48 @@
                 Height="40"
                 VerticalAlignment="Center"
                 Command="{Binding SendMessageCommand}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Offset="0.0" Color="#6A1B9A" />
+                                    <GradientStop Offset="1.0" Color="#8E24AA" />
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect
+                                    BlurRadius="5"
+                                    ShadowDepth="1"
+                                    Color="#999" />
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Offset="0.0" Color="#8E24AA" />
+                                            <GradientStop Offset="1.0" Color="#BA68C8" />
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+
+                <!--  Send Icon  -->
                 <iconPacks:PackIconMaterial
                     Width="20"
                     Height="20"
                     Kind="Send" />
             </Button>
+
         </Grid>
     </Grid>
 </UserControl>

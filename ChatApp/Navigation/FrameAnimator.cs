@@ -1,7 +1,7 @@
-﻿using System.Windows;
+﻿using MahApps.Metro.Controls;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
-using MahApps.Metro.Controls;
 
 namespace ChatApp.Navigation
 {

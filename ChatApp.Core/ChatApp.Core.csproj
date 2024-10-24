@@ -70,60 +70,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDbContext.cs" />
-    <Compile Include="Migrations\202410221142113_InitialCreate.cs" />
-    <Compile Include="Migrations\202410221142113_InitialCreate.Designer.cs">
-      <DependentUpon>202410221142113_InitialCreate.cs</DependentUpon>
+    <Compile Include="Migrations\202410240431393_Init.cs" />
+    <Compile Include="Migrations\202410240431393_Init.Designer.cs">
+      <DependentUpon>202410240431393_Init.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202410221211181_RemoveUserEmail.cs" />
-    <Compile Include="Migrations\202410221211181_RemoveUserEmail.Designer.cs">
-      <DependentUpon>202410221211181_RemoveUserEmail.cs</DependentUpon>
+    <Compile Include="Migrations\202410240554492_RemoveOfflineMessage.cs" />
+    <Compile Include="Migrations\202410240554492_RemoveOfflineMessage.Designer.cs">
+      <DependentUpon>202410240554492_RemoveOfflineMessage.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\202410231354316_AddUserSession.cs" />
-    <Compile Include="Migrations\202410231354316_AddUserSession.Designer.cs">
-      <DependentUpon>202410231354316_AddUserSession.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202410231517155_UpdateMessage.cs" />
-    <Compile Include="Migrations\202410231517155_UpdateMessage.Designer.cs">
-      <DependentUpon>202410231517155_UpdateMessage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202410231523323_MakeGroupIDNullable.cs" />
-    <Compile Include="Migrations\202410231523323_MakeGroupIDNullable.Designer.cs">
-      <DependentUpon>202410231523323_MakeGroupIDNullable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\202410231542574_RemoveUserSesssionTable.cs" />
-    <Compile Include="Migrations\202410231542574_RemoveUserSesssionTable.Designer.cs">
-      <DependentUpon>202410231542574_RemoveUserSesssionTable.cs</DependentUpon>
+    <Compile Include="Migrations\202410240600436_RemoveGroupChat.cs" />
+    <Compile Include="Migrations\202410240600436_RemoveGroupChat.Designer.cs">
+      <DependentUpon>202410240600436_RemoveGroupChat.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Models.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceRegistration.cs" />
-    <Compile Include="Services\GroupChatService.cs" />
-    <Compile Include="Services\GroupMemberService.cs" />
     <Compile Include="Services\MessageService.cs" />
-    <Compile Include="Services\OfflineMessageService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Compile Include="TimeUtils.cs" />
+    <Compile Include="UserCreation.cs" />
     <Compile Include="Utils\SecurityUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\202410221142113_InitialCreate.resx">
-      <DependentUpon>202410221142113_InitialCreate.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410221211181_RemoveUserEmail.resx">
-      <DependentUpon>202410221211181_RemoveUserEmail.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410231354316_AddUserSession.resx">
-      <DependentUpon>202410231354316_AddUserSession.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410231517155_UpdateMessage.resx">
-      <DependentUpon>202410231517155_UpdateMessage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410231523323_MakeGroupIDNullable.resx">
-      <DependentUpon>202410231523323_MakeGroupIDNullable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\202410231542574_RemoveUserSesssionTable.resx">
-      <DependentUpon>202410231542574_RemoveUserSesssionTable.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -131,6 +98,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ChatDTO.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202410240431393_Init.resx">
+      <DependentUpon>202410240431393_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410240554492_RemoveOfflineMessage.resx">
+      <DependentUpon>202410240554492_RemoveOfflineMessage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202410240600436_RemoveGroupChat.resx">
+      <DependentUpon>202410240600436_RemoveGroupChat.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
