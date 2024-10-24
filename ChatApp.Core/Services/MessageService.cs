@@ -1,62 +1,39 @@
-﻿// MessageService.cs
-using ChatApp.Core.Models;
-using ChatApp.Core.Repositories;
-using ChatApp.Core.Services;
+﻿using ChatApp.Core.Models;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace ChatServer.Services
+namespace ChatApp.Core.Services
 {
-    public class MessageService : IMessageService
+    public class MessageService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-        public MessageService(IUnitOfWork unitOfWork)
+        public MessageService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        public void CreateMessage(Message message)
+        public void SaveMessage(Message message)
         {
-            _unitOfWork.Messages.Add(message);
-            _unitOfWork.Complete();
+            _context.Messages.Add(message);
+            _context.SaveChanges();
         }
 
-        public void DeleteMessage(int id)
+        public List<Message> GetMessagesByGroupId(int groupId)
         {
-            var message = _unitOfWork.Messages.GetById(id);
-            if (message != null)
-            {
-                _unitOfWork.Messages.Remove(message);
-                _unitOfWork.Complete();
-            }
+            return _context.Messages.Where(m => m.GroupID == groupId).ToList();
         }
 
-        public IEnumerable<Message> GetAllMessages()
+        public List<Message> GetPrivateMessages(int senderId, int receiverId)
         {
-            return _unitOfWork.Messages.GetAll();
+            return _context.Messages?.Where(m => m.SenderID == senderId && m.ReceiverID == receiverId).ToList();
         }
 
-        public Message GetMessageById(int id)
+        public void SaveOfflineMessage(OfflineMessage offlineMessage)
         {
-            return _unitOfWork.Messages.GetById(id);
+            _context.OfflineMessages.Add(offlineMessage);
+            _context.SaveChanges();
         }
-
-        public IEnumerable<Message> GetMessagesByGroupId(int groupId)
-        {
-            return _unitOfWork.Messages.GetMessagesByGroupId(groupId);
-        }
-
-        public IEnumerable<Message> GetMessagesByUserId(int userId)
-        {
-            return _unitOfWork.Messages.GetMessagesByUserId(userId);
-        }
-
-        public void UpdateMessage(Message message)
-        {
-            _unitOfWork.Messages.Update(message);
-            _unitOfWork.Complete();
-        }
-
-        // Thêm các phương thức đặc thù nếu cần
     }
 }

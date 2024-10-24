@@ -1,46 +1,34 @@
-﻿// GroupMemberService.cs
-using ChatApp.Core.Models;
-using ChatApp.Core.Repositories;
-using ChatApp.Core.Services;
-using System.Collections.Generic;
+﻿using ChatApp.Core.Models;
+using System;
+using System.Linq;
 
-namespace ChatServer.Services
+namespace ChatApp.Core.Services
 {
-    public class GroupMemberService : IGroupMemberService
+    public class GroupMemberService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-        public GroupMemberService(IUnitOfWork unitOfWork)
+        public GroupMemberService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        public void AddGroupMember(GroupMember groupMember)
+        // Add a user to a group (alternative to GroupChatService)
+        public void AddMember(GroupMember groupMember)
         {
-            _unitOfWork.GroupMembers.Add(groupMember);
-            _unitOfWork.Complete();
+            _context.GroupMembers.Add(groupMember);
+            _context.SaveChanges();
         }
 
-        public void RemoveGroupMember(int groupId, int userId)
+        // Remove a user from a group
+        public void RemoveMember(int groupId, int userId)
         {
-            var groupMember = _unitOfWork.GroupMembers.GetById(new { GroupID = groupId, UserID = userId });
+            var groupMember = _context.GroupMembers.FirstOrDefault(gm => gm.GroupID == groupId && gm.UserID == userId);
             if (groupMember != null)
             {
-                _unitOfWork.GroupMembers.Remove(groupMember);
-                _unitOfWork.Complete();
+                _context.GroupMembers.Remove(groupMember);
+                _context.SaveChanges();
             }
         }
-
-        public IEnumerable<GroupMember> GetAllGroupMembers()
-        {
-            return _unitOfWork.GroupMembers.GetAll();
-        }
-
-        public GroupMember GetGroupMember(int groupId, int userId)
-        {
-            return _unitOfWork.GroupMembers.GetById(new { GroupID = groupId, UserID = userId });
-        }
-
-        // Thêm các phương thức đặc thù nếu cần
     }
 }

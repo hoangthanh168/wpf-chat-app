@@ -1,26 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ChatApp.Core;
+using ChatApp.Core.Services;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Windows;
-using Unity;
 
 namespace ChatServer
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
-        public static IUnityContainer Container { get; private set; }
+        private readonly IServiceProvider _serviceProvider;
+
+        public App()
+        {
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+
+            _serviceProvider = services.BuildServiceProvider();
+        }
+
+        private void ConfigureServices(IServiceCollection services)
+        {
+            services.AddChatAppServices();
+            services.AddSingleton<ServerSocket>(); 
+            services.AddSingleton<MainWindow>();
+
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            Container = UnityConfig.RegisterComponents();
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.Show();
         }
-
     }
 }

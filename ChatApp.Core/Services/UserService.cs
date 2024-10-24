@@ -1,43 +1,53 @@
 ﻿using ChatApp.Core.Models;
-using ChatApp.Core.Repositories;
-using ChatApp.Core.Services;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
 
-namespace ChatServer.Services
+namespace ChatApp.Core.Services
 {
-    public class UserService : IUserService
+    public class UserService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _context;
 
-        public UserService(IUnitOfWork unitOfWork)
+        public UserService(AppDbContext context)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
         }
 
-        public IEnumerable<User> GetAllUsers() => _unitOfWork.Users.GetAll();
 
-        public User GetUserById(int id) => _unitOfWork.Users.GetUserWithMessages(id);
 
         public void CreateUser(User user)
         {
-            _unitOfWork.Users.Add(user);
-            _unitOfWork.Complete();
+            _context.Users.Add(user);
+            _context.SaveChanges();
+        }
+
+
+        public User GetUserById(int id)
+        {
+            return _context.Users.Find(id);
+        }
+
+        public User GetUserByUsername(string username)
+        {
+            return _context.Users.FirstOrDefault(u => u.Username == username);
+        }
+
+        public User Authenticate(string username, string passwordHash)
+        {
+            return _context.Users.FirstOrDefault(u => u.Username == username && u.PasswordHash == passwordHash);
         }
 
         public void UpdateUser(User user)
         {
-            _unitOfWork.Users.Update(user);
-            _unitOfWork.Complete();
+            _context.Entry(user).State = EntityState.Modified;
+            _context.SaveChanges();
         }
 
-        public void DeleteUser(int id)
+        public List<User> GetAllUsers()
         {
-            var user = _unitOfWork.Users.GetById(id);
-            if (user != null)
-            {
-                _unitOfWork.Users.Remove(user);
-                _unitOfWork.Complete();
-            }
+            return _context.Users.ToList();
         }
     }
 }
