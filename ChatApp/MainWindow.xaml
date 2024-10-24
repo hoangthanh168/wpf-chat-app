@@ -10,9 +10,9 @@
     xmlns:navigation="clr-namespace:ChatApp.Navigation"
     xmlns:viewModels="clr-namespace:ChatApp.ViewModels"
     xmlns:views="clr-namespace:ChatApp.Views"
-    Title="MainWindow"
-    Width="800"
-    Height="450"
+    Title="ChatApp"
+    Width="900"
+    Height="550"
     mc:Ignorable="d">
     <ContentControl Content="{Binding CurrentView}" />
 </controls:MetroWindow>

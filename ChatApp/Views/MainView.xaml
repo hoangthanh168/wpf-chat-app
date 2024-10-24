@@ -11,7 +11,7 @@
     xmlns:viewModels="clr-namespace:ChatApp.ViewModels"
     mc:Ignorable="d">
 
-
+    
     <UserControl.Resources>
         <DataTemplate x:Key="MenuItemTemplate" DataType="{x:Type viewModels:MenuItem}">
             <Grid Height="48">
