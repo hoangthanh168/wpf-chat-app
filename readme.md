@@ -1,7 +1,15 @@
 # ChatApp
 
 ## Mô tả
-ChatApp là một phần mềm chat được phát triển theo yêu cầu môn học Lập Trình Mạng tại Đại Học Đà Lạt, phần mềm hỗ trợ giao tiếp trực tiếp và nhóm, với tính năng lưu trữ tin nhắn offline.
+ChatApp là một phần mềm chat được phát triển theo yêu cầu môn học Lập Trình Mạng tại Đại Học DLU, phần mềm hỗ trợ giao tiếp trực tiếp và nhóm, với tính năng lưu trữ tin nhắn offline. Tất cả các thành phần giao tiếp với nhau cục bộ trên máy tính của người dùng mà không cần một backend riêng biệt.
+
+
+## Hình ảnh giao diện
+![Giao diện](https://github.com/hoangthanh168/wpf-chat-app/blob/main/Img/MzUHuXCgXK.png)
+
+![Giao diện](https://github.com/hoangthanh168/wpf-chat-app/blob/main/Img/c73KFUpZQw.png)
+
+![Giao diện](https://github.com/hoangthanh168/wpf-chat-app/blob/main/Img/sOhbQo6.png)
 
 ## Tính năng
 - **Đăng ký & Đăng nhập:** Người dùng có thể tạo tài khoản và đăng nhập vào hệ thống.
@@ -12,20 +20,17 @@ ChatApp là một phần mềm chat được phát triển theo yêu cầu môn 
 
 ## Công nghệ sử dụng
 - .NET Framework, Entity Framework
-- Mô hình MVVM
-- MahApps
 - WPF (Windows Presentation Foundation)
-- DependencyInjection
+- Unity
 - Git
-- SQL Server
-
+- QL Server
 
 ## Cấu trúc dự án
 ```
 ChatApp/
-├── ChatApp/ 
-├── ChatApp.Core/
-└── ChatServer/
+├── ChatApp/                # Project Presentation Layer (WPF)
+├── ChatApp.Core/           # Core Layer (Models, Repositories, Services)
+└── ChatServer/             # Data Access Layer và Server Logic (cục bộ)
 ```
 
 ## Yêu cầu hệ thống
@@ -52,7 +57,7 @@ Update-Package -reinstall
 Hoặc sử dụng **NuGet Package Manager** để cài đặt các package thiếu.
 
 ### 4. Cấu hình chuỗi kết nối
-Chỉnh sửa file `App.config` trong dự án `ChatServer` `ChatApp` `ChatApp.Core` để cấu hình chuỗi kết nối đến SQL Server.
+Chỉnh sửa file `App.config` trong dự án `ChatServer` để cấu hình chuỗi kết nối đến SQL Server.
 ```xml
 <connectionStrings>
     <add name="DefaultConnection" connectionString="Data Source=YOUR_SERVER;Initial Catalog=ChatAppDB;Integrated Security=True" providerName="System.Data.SqlClient" />
@@ -60,7 +65,7 @@ Chỉnh sửa file `App.config` trong dự án `ChatServer` `ChatApp` `ChatApp.C
 ```
 
 ### 5. Áp dụng Migrations và Tạo Database
-Mở **Package Manager Console** chọn `ChatApp.Core` là Startup Project và trong **Package Manager Console** chọn .Core và chạy:
+Mở **Package Manager Console** và chạy:
 ```powershell
 Enable-Migrations
 Add-Migration InitialCreate
